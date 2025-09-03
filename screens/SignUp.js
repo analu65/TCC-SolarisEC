@@ -50,7 +50,7 @@ export default function SignUp({navigation}){
                 .map(item => item.trim())
                 .filter(item => item !== '');
             
-            await addDoc(collection(db, "usuarios"), {
+            await addDoc(collection(db, "users"), {
                 uid: userCredential.user.uid,
                 nome, telefone, email, cpf, tipo,
                 birthdate, cidade, cep, bairro, rua, numero,
@@ -78,16 +78,14 @@ export default function SignUp({navigation}){
     };
     
     return (
-        <KeyboardAvoidingView 
-            style={styles.container} 
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
+            <View style={styles.container}>
             <ScrollView 
                 style={styles.scrollView}
                 contentContainerStyle={styles.scrollContainer} 
                 showsVerticalScrollIndicator={true}
                 keyboardShouldPersistTaps="handled"
-                bounces={true}
+                scrollEnabled={true}
+                nestedScrollEnabled={true}
             >
                 <Text style={styles.title}>É novo? Faça seu cadastro</Text>
                 <Text style={styles.subtitle}>Preencha um formulário para realizar a inscrição</Text>
@@ -149,7 +147,7 @@ export default function SignUp({navigation}){
                     <Text style={styles.botaoTexto}>Cadastrar</Text>
                 </TouchableOpacity>
             </ScrollView>
-        </KeyboardAvoidingView>
+            </View>
     );
 }
 

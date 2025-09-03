@@ -9,6 +9,8 @@ import Selection from './screens/selection';
 import { StatusBar } from 'expo-status-bar';
 import SignUp from './screens/SignUp';
 import Login from './screens/Login';
+import Teste from './screens/screenteste';
+
 import EmailComposerScreen from './screens/emailComposerScreen';
 function BottomTabs(){
   const BottomTab = createBottomTabNavigator();
@@ -25,7 +27,7 @@ function BottomTabs(){
           }}>
                 <BottomTab.Screen name='Home' component={Home} options={{tabBarIcon: () => (<MaterialCommunityIcons name="home" size={20} color="
 #dd6a71" />), header: () => null}}></BottomTab.Screen>
-                <BottomTab.Screen name='Email' component={EmailComposerScreen} options={{tabBarIcon: () => (<MaterialCommunityIcons name="bell" size={20} color="
+                <BottomTab.Screen name='Teste' component={Teste} options={{tabBarIcon: () => (<MaterialCommunityIcons name="bell" size={20} color="
 #dd6a71" />), header: () => null}}></BottomTab.Screen>
             </BottomTab.Navigator>
   );
