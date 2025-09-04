@@ -15,13 +15,13 @@ const EmailComposerScreen = () => {
     buscarEmailsDoFirebase()
   }, []);
 
-  const buscarEmailsDoFirebase = async () => {
+  const buscarEmailsDoFirebase = async () => { //busca emails q loguei no firebase (o da alexandra n ta)
     try{
-        const usersRef = collection(db, 'users');
-        const snapshot = await getDocs(usersRef);
+        const usersRef = collection(db, 'users'); //pega do usuarios
+        const snapshot = await getDocs(usersRef); //pega informacao do usuarios
 
         const emailsList = [];
-        snapshot.forEach(doc => {
+        snapshot.forEach(doc => { //userdata vira emails, que pega o nome do email
             const userData  = doc.data();
             if (userData.email){
                 emailsList.push({
@@ -31,8 +31,8 @@ const EmailComposerScreen = () => {
                 });
             }
         });
-        setUsuarios(emailsList);
-        setTotalEmails(emailsList.length);
+        setUsuarios(emailsList); //lista dos emails separados pelos usuarios p depois no front
+        setTotalEmails(emailsList.length); //total de emails pro destinatarios
         }catch (error){
             console.error('Erro ao buscar emails', error);
             Alert.alert('Erro', 'Não foi possível carregar os emails dos usuários');
@@ -41,32 +41,32 @@ const EmailComposerScreen = () => {
     };
     
     const enviarEmails = async () => {
-        if (!assunto.trim() || !mensagem.trim()) {
+        if (!assunto.trim() || !mensagem.trim()) {  //se o assunto ou mensagem estiverem vazios
             Alert.alert('Atenção', 'Preencha o assunto e a mensagem');
             return;
         }
         
         if (usuarios.length == 0){
-        Alert.alert('Atenção', 'Nenhum email encontrado no banco de dados');
+        Alert.alert('Atenção', 'Nenhum email encontrado no banco de dados'); //se n tiver o usuario
         return;
     }
     
     //confirma envio
     Alert.alert('Confirmar envio', `Enviar email para ${totalEmails} pessoas?`, [
-        {text: 'Cancelar', style: 'cancel'},
-        {text: 'Enviar', onPress: confirmarEnvio }
+        {text: 'Cancelar', style: 'cancel'}, //botao q so cancela
+        {text: 'Enviar', onPress: confirmarEnvio } //ativa a const de enviar o email
     ]);
     };
     
-    const confirmarEnvio = async () => {
+    const confirmarEnvio = async () => { //confirma o envio e envia para os destinatarios (checar api depois)
         setEnviando(true);
         try {
-            const response = await fetch('https://us-central1-tcc--solaris.cloudfunctions.net/sendBulkEmails', {
+            const response = await fetch('https://us-central1-tcc--solaris.cloudfunctions.net/sendBulkEmails', { //cloud functions q ja configurei, faz junto com api do gmail 
                 method:'POST', 
                 headers: {
                     'Content-Type': 'application/json',
                 }, 
-                body: JSON.stringify({
+                body: JSON.stringify({ //vira uma string e pega assunto mensagem e todos os usuarios
                     assunto: assunto,
                     mensagem: mensagem,
                     emails: usuarios.map(u => ({email: u.email, name: u.name}))
@@ -74,9 +74,9 @@ const EmailComposerScreen = () => {
             });
             
             const result = await response.json();
-            if (result.sucessos) { // Mudança aqui: seu backend retorna 'sucessos', não 'success'
+            if (result.sucessos) { //se der certo da sucessos
                 Alert.alert('Sucesso!',`Emails enviados para ${result.sucessos} pessoas`,
-                  [{ text: 'OK', onPress: limparFormulario }]
+                  [{ text: 'OK', onPress: limparFormulario }] //limpa pra proximo email
                 );
             } else {
                 throw new Error(result.error || 'Erro desconhecido');
@@ -89,13 +89,9 @@ const EmailComposerScreen = () => {
         }
     };
     
-    const limparFormulario = () => {
+    const limparFormulario = () => { //const q limpa o formulario, lembrar que pode usar quantas conts quiser aq em cima
         setAssunto('');
         setMensagem('');
-    };
-    
-    const previewEmail = () => {
-        Alert.alert('Preview do email', `Assunto: ${assunto}\n\nMensagem:\n${mensagem}\n\nSerá enviado para: ${totalEmails} pessoas`);
     };
     
     return (
@@ -104,13 +100,11 @@ const EmailComposerScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
              <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         
-            {/* Header */}
         <View style={styles.header}>
-          <Ionicons name="mail-outline" size={24} color="#4A90E2" />
+          <Ionicons name="mail-outline" size={24} color="#dd6b70" />
           <Text style={styles.headerTitle}>Enviar Email</Text>
         </View>
         
-        {/* Info dos destinatários */}
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
             <Ionicons name="people-outline" size={20} color="#666" />
@@ -120,17 +114,16 @@ const EmailComposerScreen = () => {
           </View>
           <TouchableOpacity 
             style={styles.refreshButton}
-            onPress={buscarEmailsDoFirebase}
+            onPress={buscarEmailsDoFirebase} //botao de refresh busca com a funcao buscaremailsdofirebase
           >
-            <Ionicons name="refresh-outline" size={18} color="#4A90E2" />
+            <Ionicons name="refresh-outline" size={18} color="#dd6b70" />
           </TouchableOpacity>
         </View>
         
-        {/* Campo Assunto */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Assunto</Text>
           <TextInput
-            style={styles.input}
+            style={styles.input} //input do assunto
             value={assunto}
             onChangeText={setAssunto}
             placeholder="Digite o assunto do email..."
@@ -138,10 +131,9 @@ const EmailComposerScreen = () => {
           />
         </View>
 
-        {/* Campo Mensagem */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Mensagem</Text>
-          <TextInput
+          <TextInput //campo da mensagem
             style={[styles.input, styles.messageInput]}
             value={mensagem}
             onChangeText={setMensagem}
@@ -151,18 +143,10 @@ const EmailComposerScreen = () => {
             numberOfLines={8}
             textAlignVertical="top"
           />
-          <Text style={styles.charCount}>{mensagem.length}/1000</Text>
+          <Text style={styles.charCount}>{mensagem.length}/1000</Text> 
         </View>
         
-         {/* Botões */}
         <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-            style={styles.previewButton}
-            onPress={previewEmail}
-          >
-            <Ionicons name="eye-outline" size={18} color="#666" />
-            <Text style={styles.previewButtonText}>Preview</Text>
-          </TouchableOpacity>
 
           <TouchableOpacity 
             style={[styles.sendButton, enviando && styles.sendButtonDisabled]}
@@ -180,9 +164,8 @@ const EmailComposerScreen = () => {
           </TouchableOpacity>
         </View>
         
-        {/* Lista de alguns emails (preview) */}
         <View style={styles.emailPreview}>
-          <Text style={styles.previewTitle}>Alguns destinatários:</Text>
+          <Text style={styles.previewTitle}>Lista de destinatários:</Text>
           {usuarios.slice(0, 3).map((user, index) => (
             <View key={index} style={styles.emailItem}>
               <Ionicons name="person-outline" size={16} color="#666" />
@@ -298,7 +281,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   sendButton: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: '#dd6b70',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 25,

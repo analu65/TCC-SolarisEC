@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, cardStyleInterpolator, CardStyleInterpolators } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import Home from './screens/Home';
+import Home from './screens/HomeProfessor';
 import Avisos from './screens/Avisos';
 import Selection from './screens/selection';
 import { StatusBar } from 'expo-status-bar';
@@ -12,6 +12,7 @@ import Login from './screens/Login';
 import Teste from './screens/screenteste';
 
 import EmailComposerScreen from './screens/emailComposerScreen';
+import { useState } from 'react';
 function BottomTabs(){
   const BottomTab = createBottomTabNavigator();
   return (
@@ -25,10 +26,8 @@ function BottomTabs(){
               marginBottom: -2
             }
           }}>
-                <BottomTab.Screen name='Home' component={Home} options={{tabBarIcon: () => (<MaterialCommunityIcons name="home" size={20} color="
-#dd6a71" />), header: () => null}}></BottomTab.Screen>
-                <BottomTab.Screen name='Teste' component={Teste} options={{tabBarIcon: () => (<MaterialCommunityIcons name="bell" size={20} color="
-#dd6a71" />), header: () => null}}></BottomTab.Screen>
+                <BottomTab.Screen name='Home' component={Home} options={{tabBarIcon: () => (<MaterialCommunityIcons name="home" size={20} color="#dd6a71" />), header: () => null}}></BottomTab.Screen>
+                <BottomTab.Screen name='Email' component={EmailComposerScreen} options={{tabBarIcon: () => (<MaterialCommunityIcons name="bell" size={20} color="#dd6a71" />), header: () => null}}></BottomTab.Screen>
             </BottomTab.Navigator>
   );
 }

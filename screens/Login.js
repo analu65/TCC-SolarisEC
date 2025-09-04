@@ -6,11 +6,13 @@ export default function Login({navigation}){
     const[email,setEmail] = useState('');
     const[senha, setSenha] = useState('');
 
+
     const verificaUser = () => {
         signInWithEmailAndPassword(auth, email, senha)
         .then((usercredential) => {
             console.log('Usuário Logado.');
             alert('Login realizado com sucesso.')
+
             navigation.navigate('HomeTab')
         })
         .catch ((error) => {
