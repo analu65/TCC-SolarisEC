@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from "react-native";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../controller/controller";
+import { db, storage } from "../controller/controller";
 import { Ionicons } from '@expo/vector-icons'; 
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import * as ImagePicker from 'expo-image-picker';
 
 const EmailComposerScreen = () => {
   const [assunto, setAssunto] = useState('');
@@ -10,6 +12,9 @@ const EmailComposerScreen = () => {
   const [enviando, setEnviando] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
   const [totalEmails, setTotalEmails] = useState(0);
+  const [imagem, setImagem] = useState(null);
+  const [uploading, setUploading] = useState('');
+
 
   useEffect(() => {
     buscarEmailsDoFirebase()
@@ -19,8 +24,8 @@ const EmailComposerScreen = () => {
     try{
         const usersRef = collection(db, 'users'); //pega do usuarios
         const snapshot = await getDocs(usersRef); //pega informacao do usuarios
-
         const emailsList = [];
+
         snapshot.forEach(doc => { //userdata vira emails, que pega o nome do email
             const userData  = doc.data();
             if (userData.email){
@@ -39,6 +44,10 @@ const EmailComposerScreen = () => {
 
         }
     };
+
+    const selecionarImagem = async () => {
+      
+    }
     
     const enviarEmails = async () => {
         if (!assunto.trim() || !mensagem.trim()) {  //se o assunto ou mensagem estiverem vazios
