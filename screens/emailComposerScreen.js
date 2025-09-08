@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from "react-native";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../controller/controller";
-import { Ionicons } from '@expo/vector-icons'; // LINHA ADICIONADA
+import { Ionicons } from '@expo/vector-icons'; 
 
 const EmailComposerScreen = () => {
   const [assunto, setAssunto] = useState('');
