@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, Image } from "react-native";
 import { collection, getDocs } from "firebase/firestore";
 import { db, storage } from "../controller/controller";
 import { Ionicons } from '@expo/vector-icons'; 
@@ -13,123 +13,143 @@ const EmailComposerScreen = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [totalEmails, setTotalEmails] = useState(0);
   const [imagem, setImagem] = useState(null);
-  const [uploading, setUploading] = useState('');
-
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    buscarEmailsDoFirebase()
+    buscarEmailsDoFirebase();
   }, []);
 
-  const buscarEmailsDoFirebase = async () => { //busca emails q loguei no firebase (o da alexandra n ta)
-    try{
-        const usersRef = collection(db, 'users'); //pega do usuarios
-        const snapshot = await getDocs(usersRef); //pega informacao do usuarios
-        const emailsList = [];
+  const buscarEmailsDoFirebase = async () => {
+    try {
+      const usersRef = collection(db, 'users');
+      const snapshot = await getDocs(usersRef);
+      const emailsList = [];
 
-        snapshot.forEach(doc => { //userdata vira emails, que pega o nome do email
-            const userData  = doc.data();
-            if (userData.email){
-                emailsList.push({
-                    email: userData.email,
-                    name: userData.name || userData.nome || 'Usuário',
-                    id: doc.id
-                });
-            }
-        });
-        setUsuarios(emailsList); //lista dos emails separados pelos usuarios p depois no front
-        setTotalEmails(emailsList.length); //total de emails pro destinatarios
-        }catch (error){
-            console.error('Erro ao buscar emails', error);
-            Alert.alert('Erro', 'Não foi possível carregar os emails dos usuários');
-
+      snapshot.forEach(doc => {
+        const userData = doc.data();
+        if (userData.email) {
+          emailsList.push({
+            email: userData.email,
+            name: userData.name || userData.nome || 'Usuário',
+            id: doc.id
+          });
         }
-    };
-
-    const selecionarImagem = async () => {
-      try {
-        const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-        if (status !== 'granted') {
-          Alert.alert('Permissão necessária', 'Precisamos de acesso à sua galeria.');
-          return;
-        }
-        const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [4,3],
-          quality: 0.8,
-        });
-
-        if (!result.canceled) {
-          setImagem(result.assets[0]);
-        } catch (error){
-          console.error('Erro ao selecionar imagem:', error);
-          Alert.alert('Erro', 'Não foi possível selecionar a imagem');
-        }
-      };
-      const fazerUploadImagem = async () => {
-        if (!imagem) return null;
-        setUploading(true);
-
-        try {
-          const response = 
-        }
-      }
+      });
+      setUsuarios(emailsList);
+      setTotalEmails(emailsList.length);
+    } catch (error) {
+      console.error('Erro ao buscar emails', error);
+      Alert.alert('Erro', 'Não foi possível carregar os emails dos usuários');
     }
-    
-    const enviarEmails = async () => {
-        if (!assunto.trim() || !mensagem.trim()) {  //se o assunto ou mensagem estiverem vazios
-            Alert.alert('Atenção', 'Preencha o assunto e a mensagem');
-            return;
-        }
-        
-        if (usuarios.length == 0){
-        Alert.alert('Atenção', 'Nenhum email encontrado no banco de dados'); //se n tiver o usuario
+  };
+
+  const selecionarImagem = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (status !== 'granted') {
+        Alert.alert('Permissão necessária', 'Precisamos de acesso à sua galeria.');
+        return;
+      }
+      
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        setImagem(result.assets[0]);
+      }
+    } catch (error) {
+      console.error('Erro ao selecionar imagem:', error);
+      Alert.alert('Erro', 'Não foi possível selecionar a imagem');
+    }
+  };
+
+  const fazerUploadImagem = async () => {
+    if (!imagem) return null;
+    setUploading(true);
+
+    try {
+      const response = await fetch(imagem.uri);
+      const blob = await response.blob();
+      const nomeArquivo = `emails/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
+      const storageRef = ref(storage, nomeArquivo);
+
+      await uploadBytes(storageRef, blob);
+      const downloadURL = await getDownloadURL(storageRef);
+      return downloadURL;
+    } catch (error) {
+      console.error('Erro no upload:', error);
+      Alert.alert('Erro', 'Falha ao fazer upload da imagem');
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const enviarEmails = async () => {
+    if (!assunto.trim() || !mensagem.trim()) {
+        Alert.alert('Atenção', 'Preencha o assunto e a mensagem');
         return;
     }
     
-    //confirma envio
+    if (usuarios.length === 0) {
+        Alert.alert('Atenção', 'Nenhum email encontrado no banco de dados');
+        return;
+    }
+    
     Alert.alert('Confirmar envio', `Enviar email para ${totalEmails} pessoas?`, [
-        {text: 'Cancelar', style: 'cancel'}, //botao q so cancela
-        {text: 'Enviar', onPress: confirmarEnvio } //ativa a const de enviar o email
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Enviar', onPress: confirmarEnvio }
     ]);
-    };
-    
-    const confirmarEnvio = async () => { //confirma o envio e envia para os destinatarios (checar api depois)
-        setEnviando(true);
-        try {
-            const response = await fetch('https://us-central1-tcc--solaris.cloudfunctions.net/sendBulkEmails', { //cloud functions q ja configurei, faz junto com api do gmail 
-                method:'POST', 
-                headers: {
-                    'Content-Type': 'application/json',
-                }, 
-                body: JSON.stringify({ //vira uma string e pega assunto mensagem e todos os usuarios
-                    assunto: assunto,
-                    mensagem: mensagem,
-                    emails: usuarios.map(u => ({email: u.email, name: u.name}))
-                })
-            });
-            
-            const result = await response.json();
-            if (result.sucessos) { //se der certo da sucessos
-                Alert.alert('Sucesso!',`Emails enviados para ${result.sucessos} pessoas`,
-                  [{ text: 'OK', onPress: limparFormulario }] //limpa pra proximo email
-                );
-            } else {
-                throw new Error(result.error || 'Erro desconhecido');
-            } 
-        }catch(error){
-            console.error('Erro no envio', error);
-            Alert.alert('Erro', 'Não foi possível enviar os emails. Tente novamente');
-        } finally {
-            setEnviando(false);
-        }
-    };
-    
-    const limparFormulario = () => { //const q limpa o formulario, lembrar que pode usar quantas conts quiser aq em cima
-        setAssunto('');
-        setMensagem('');
-    };
+}; 
+  const confirmarEnvio = async () => {
+    setEnviando(true);
+    try {
+      // Primeiro faz upload da imagem se existir
+      let urlImagem = null;
+      if (imagem) {
+        urlImagem = await fazerUploadImagem();
+      }
+
+      const response = await fetch('https://us-central1-tcc--solaris.cloudfunctions.net/sendBulkEmails', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json',
+        }, 
+        body: JSON.stringify({
+          assunto: assunto,
+          mensagem: mensagem,
+          imagemUrl: urlImagem,
+          emails: usuarios.map(u => ({ email: u.email, name: u.name }))
+        })
+      });
+      
+      const result = await response.json();
+      if (result.sucessos) {
+        Alert.alert('Sucesso!', `Emails enviados para ${result.sucessos} pessoas`,
+          [{ text: 'OK', onPress: limparFormulario }]
+        );
+      } else {
+        throw new Error(result.error || 'Erro desconhecido');
+      } 
+    } catch (error) {
+      console.error('Erro no envio', error);
+      Alert.alert('Erro', 'Não foi possível enviar os emails. Tente novamente');
+    } finally {
+      setEnviando(false);
+    }
+  };
+
+  const limparFormulario = () => {
+    setAssunto('');
+    setMensagem('');
+    setImagem(null);
+  };
+
     
     return (
         <KeyboardAvoidingView 
@@ -182,6 +202,36 @@ const EmailComposerScreen = () => {
           />
           <Text style={styles.charCount}>{mensagem.length}/1000</Text> 
         </View>
+        <View style={styles.inputContainer}>
+      <Text style={styles.label}>Imagem (opcional)</Text>
+      
+      {imagem ? (
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: imagem.uri }} style={styles.imagePreview} />
+          <TouchableOpacity 
+            style={styles.removeImageButton}
+            onPress={() => setImagem(null)}
+          >
+            <Ionicons name="close-circle" size={24} color="#dd6b70" />
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <TouchableOpacity 
+          style={styles.imagePickerButton}
+          onPress={selecionarImagem}
+          disabled={uploading}
+        >
+          {uploading ? (
+            <ActivityIndicator color="#dd6b70" />
+          ) : (
+            <>
+              <Ionicons name="image-outline" size={24} color="#dd6b70" />
+              <Text style={styles.imagePickerText}>Selecionar Imagem</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      )}
+    </View>
         
         <View style={styles.buttonContainer}>
 
@@ -365,6 +415,40 @@ const styles = StyleSheet.create({
     color: '#999',
     marginTop: 5,
     textAlign: 'center',
+  },
+  imagePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderStyle: 'dashed',
+    borderRadius: 10,
+    padding: 20,
+    marginVertical: 10,
+  },
+  imagePickerText: {
+    marginLeft: 10,
+    color: '#dd6b70',
+    fontWeight: '600',
+  },
+  imageContainer: {
+    position: 'relative',
+    alignItems: 'center',
+  },
+  imagePreview: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+    marginVertical: 10,
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'white',
+    borderRadius: 15,
   },
 });
 

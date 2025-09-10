@@ -1,8 +1,8 @@
-import { View, StyleSheet, TouchableOpacity, Text, ScrollView, Switch, TextInput, KeyboardAvoidingView, Platform } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Text, ScrollView, Switch, TextInput, Platform } from "react-native";
 import { useState } from "react";
 import { Picker } from "@react-native-picker/picker";
 import { db, auth } from "../controller/controller";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, setDoc, doc } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function SignUp({navigation}){
@@ -50,19 +50,34 @@ export default function SignUp({navigation}){
                 .map(item => item.trim())
                 .filter(item => item !== '');
             
-            await addDoc(collection(db, "users"), {
-                uid: userCredential.user.uid,
-                nome, telefone, email, cpf, tipo,
-                birthdate, cidade, cep, bairro, rua, numero,
-                tiposanguineo, probsaude,
-                alergias: alergiasArray,
-                medicamentos: medicamentosArray,
-                probposturais, riscocardiaco, doresfrequentes,
-                contato: contatoemergencia,
-                falarcom, pratica: praticaativ,
-                tipoAtiv: tipoativ, frequencia: frequenciaativ, tempo
-            });
-
+                const userDocRef = doc(db, "users", userCredential.user.uid);
+        
+                await setDoc(userDocRef, {
+                    nome: nome || '',
+                    telefone: telefone || '',
+                    email: email || '',
+                    cpf: cpf || '',
+                    tipo: tipo || 'aluno',
+                    birthdate: birthdate || '',
+                    cidade: cidade || '',
+                    cep: cep || '',
+                    bairro: bairro || '',
+                    rua: rua || '',
+                    numero: numero || '',
+                    tiposanguineo: tiposanguineo || '',
+                    probsaude: probsaude || '',
+                    alergias: alergiasArray,
+                    medicamentos: medicamentosArray,
+                    probposturais: Boolean(probposturais),
+                    riscocardiaco: Boolean(riscocardiaco),
+                    doresfrequentes: Boolean(doresfrequentes),
+                    contato: contatoemergencia || '',
+                    falarcom: falarcom || '',
+                    pratica: Boolean(praticaativ),
+                    tipoAtiv: tipoativ || '',
+                    frequencia: frequenciaativ || '',
+                    tempo: tempo || ''
+                });
             alert("Cadastro realizado com sucesso!");
             navigation.navigate('Login');
         } catch (error) {
@@ -76,78 +91,88 @@ export default function SignUp({navigation}){
         if (cleaned.length <= 4) return cleaned.substring(0, 2) + '/' + cleaned.substring(2);
         return cleaned.substring(0, 2) + '/' + cleaned.substring(2, 4) + '/' + cleaned.substring(4, 8);
     };
-    
-    return (
-            <View style={styles.container}>
-            <ScrollView 
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContainer} 
-                showsVerticalScrollIndicator={true}
-                keyboardShouldPersistTaps="handled"
-                scrollEnabled={true}
-                nestedScrollEnabled={true}
-            >
-                <Text style={styles.title}>É novo? Faça seu cadastro</Text>
-                <Text style={styles.subtitle}>Preencha um formulário para realizar a inscrição</Text>
 
-                <Text style={styles.descriptionItems}>É aluno ou professor?</Text>
-                <Picker selectedValue={tipo} onValueChange={setTipo} style={styles.picker}>
-                    <Picker.Item label="Aluno" value="aluno" />
-                    <Picker.Item label="Professor" value="professor" />
-                </Picker>
+    // Conteúdo do formulário
+    const renderContent = () => (
+        <View style={styles.content}>
+            <Text style={styles.title}>É novo? Faça seu cadastro</Text>
+            <Text style={styles.subtitle}>Preencha um formulário para realizar a inscrição</Text>
 
-                <TextInput style={styles.input} placeholder="Digite seu E-mail" value={email} onChangeText={setEmail} autoCapitalize="none"/>
-                <TextInput style={styles.input} placeholder="Digite sua Senha" value={senha} onChangeText={setSenha} secureTextEntry/>
-                <TextInput style={styles.input} placeholder="Nome completo" value={nome} onChangeText={setNome} autoCapitalize="words"/>
-                <TextInput style={styles.input} placeholder="Telefone" value={telefone} onChangeText={setTelefone} keyboardType="phone-pad"/>
-                <TextInput style={styles.input} placeholder="CPF" value={cpf} onChangeText={setCpf} keyboardType="numeric"/>
-                <TextInput style={styles.input} value={birthdate} placeholder="Data de Nascimento" onChangeText={(t)=>setBirthdate(formatarData(t))} keyboardType="numeric" maxLength={10}/>
+            <Text style={styles.descriptionItems}>É aluno ou professor?</Text>
+            <Picker selectedValue={tipo} onValueChange={setTipo} style={styles.picker}>
+                <Picker.Item label="Aluno" value="aluno" />
+                <Picker.Item label="Professor" value="professor" />
+            </Picker>
 
-                <Text style={styles.descriptionItems}>ENDEREÇO</Text>
-                <TextInput style={styles.input} placeholder="CEP" value={cep} onChangeText={setCep} keyboardType="numeric"/>
-                <TextInput style={styles.input} placeholder="Cidade" value={cidade} onChangeText={setCidade}/>
-                <TextInput style={styles.input} placeholder="Bairro" value={bairro} onChangeText={setBairro}/>
-                <TextInput style={styles.input} placeholder="Rua" value={rua} onChangeText={setRua}/>
-                <TextInput style={styles.input} placeholder="Número" value={numero} onChangeText={setNumero}/>
+            <TextInput style={styles.input} placeholder="Digite seu E-mail" value={email} onChangeText={setEmail} autoCapitalize="none"/>
+            <TextInput style={styles.input} placeholder="Digite sua Senha" value={senha} onChangeText={setSenha} secureTextEntry/>
+            <TextInput style={styles.input} placeholder="Nome completo" value={nome} onChangeText={setNome} autoCapitalize="words"/>
+            <TextInput style={styles.input} placeholder="Telefone" value={telefone} onChangeText={setTelefone} keyboardType="phone-pad"/>
+            <TextInput style={styles.input} placeholder="CPF" value={cpf} onChangeText={setCpf} keyboardType="numeric"/>
+            <TextInput style={styles.input} value={birthdate} placeholder="Data de Nascimento" onChangeText={(t)=>setBirthdate(formatarData(t))} keyboardType="numeric" maxLength={10}/>
 
-                <Text style={styles.titlemiddle}>ANAMNESE</Text>
-                <TextInput style={[styles.input, styles.textArea]} placeholder="Alergias (separadas por vírgula)" value={alergiasinput} onChangeText={setAlergiasinput} multiline/>
-                <TextInput style={[styles.input, styles.textArea]} placeholder="Medicamentos (separados por vírgula)" value={medicamentosinput} onChangeText={setMedicamentosinput} multiline/>
+            <Text style={styles.descriptionItems}>ENDEREÇO</Text>
+            <TextInput style={styles.input} placeholder="CEP" value={cep} onChangeText={setCep} keyboardType="numeric"/>
+            <TextInput style={styles.input} placeholder="Cidade" value={cidade} onChangeText={setCidade}/>
+            <TextInput style={styles.input} placeholder="Bairro" value={bairro} onChangeText={setBairro}/>
+            <TextInput style={styles.input} placeholder="Rua" value={rua} onChangeText={setRua}/>
+            <TextInput style={styles.input} placeholder="Número" value={numero} onChangeText={setNumero}/>
 
-                <View style={styles.switchContainer}>
-                    <Text style={styles.switchText}>Possui problemas posturais?</Text>
-                    <Switch value={probposturais} onValueChange={setProbposturais}/>
-                </View>
-                <View style={styles.switchContainer}>
-                    <Text style={styles.switchText}>Possui risco cardíaco?</Text>
-                    <Switch value={riscocardiaco} onValueChange={setRiscocardiaco}/>
-                </View>
-                <View style={styles.switchContainer}>
-                    <Text style={styles.switchText}>Possui dores frequentes?</Text>
-                    <Switch value={doresfrequentes} onValueChange={setDoresfrequentes}/>
-                </View>
+            <Text style={styles.titlemiddle}>ANAMNESE</Text>
+            <TextInput style={[styles.input, styles.textArea]} placeholder="Alergias (separadas por vírgula)" value={alergiasinput} onChangeText={setAlergiasinput} multiline/>
+            <TextInput style={[styles.input, styles.textArea]} placeholder="Medicamentos (separados por vírgula)" value={medicamentosinput} onChangeText={setMedicamentosinput} multiline/>
 
-                <TextInput style={styles.input} placeholder="Contato de Emergência" value={contatoemergencia} onChangeText={setContatoemergencia}/>
-                <TextInput style={styles.input} placeholder="Falar com:" value={falarcom} onChangeText={setFalarcom}/>
-
-                <Text style={styles.titlemiddle}>ATIVIDADE FÍSICA</Text>
-                <View style={styles.switchContainer}>
-                    <Text style={styles.switchText}>Pratica atividade física?</Text>
-                    <Switch value={praticaativ} onValueChange={setPraticaativ}/>
-                </View>
-                {praticaativ && (
-                    <>
-                        <TextInput style={styles.input} placeholder="Tipo de atividade" value={tipoativ} onChangeText={setTipoativ}/>
-                        <TextInput style={styles.input} placeholder="Frequência" value={frequenciaativ} onChangeText={setFrequenciaativ}/>
-                        <TextInput style={styles.input} placeholder="Há quanto tempo?" value={tempo} onChangeText={setTempo}/>
-                    </>
-                )}
-
-                <TouchableOpacity style={styles.botao} onPress={cadastrar}>
-                    <Text style={styles.botaoTexto}>Cadastrar</Text>
-                </TouchableOpacity>
-            </ScrollView>
+            <View style={styles.switchContainer}>
+                <Text style={styles.switchText}>Possui problemas posturais?</Text>
+                <Switch value={probposturais} onValueChange={setProbposturais}/>
             </View>
+            <View style={styles.switchContainer}>
+                <Text style={styles.switchText}>Possui risco cardíaco?</Text>
+                <Switch value={riscocardiaco} onValueChange={setRiscocardiaco}/>
+            </View>
+            <View style={styles.switchContainer}>
+                <Text style={styles.switchText}>Possui dores frequentes?</Text>
+                <Switch value={doresfrequentes} onValueChange={setDoresfrequentes}/>
+            </View>
+
+            <TextInput style={styles.input} placeholder="Contato de Emergência" value={contatoemergencia} onChangeText={setContatoemergencia}/>
+            <TextInput style={styles.input} placeholder="Falar com:" value={falarcom} onChangeText={setFalarcom}/>
+
+            <Text style={styles.titlemiddle}>ATIVIDADE FÍSICA</Text>
+            <View style={styles.switchContainer}>
+                <Text style={styles.switchText}>Pratica atividade física?</Text>
+                <Switch value={praticaativ} onValueChange={setPraticaativ}/>
+            </View>
+            {praticaativ && (
+                <>
+                    <TextInput style={styles.input} placeholder="Tipo de atividade" value={tipoativ} onChangeText={setTipoativ}/>
+                    <TextInput style={styles.input} placeholder="Frequência" value={frequenciaativ} onChangeText={setFrequenciaativ}/>
+                    <TextInput style={styles.input} placeholder="Há quanto tempo?" value={tempo} onChangeText={setTempo}/>
+                </>
+            )}
+
+            <TouchableOpacity style={styles.botao} onPress={cadastrar}>
+                <Text style={styles.botaoTexto}>Cadastrar</Text>
+            </TouchableOpacity>
+        </View>
+    );
+    
+    if (Platform.OS === 'web') {
+        return (
+            <div style={{
+                height: '100vh',
+                overflow: 'auto',
+                backgroundColor: '#eee0d3'
+            }}>
+                {renderContent()}
+            </div>
+        );
+    }
+
+    return (
+        <ScrollView style={styles.container}>
+            {renderContent()}
+        </ScrollView>
     );
 }
 
@@ -156,17 +181,15 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#eee0d3',
     },
-    scrollView: {
-        flex: 1, 
-    },
-    scrollContainer: {
-        flexGrow: 1, 
+    content: {
         alignItems: 'center',
-        paddingVertical: 30, 
-        paddingBottom: 50, 
+        paddingVertical: 30,
+        paddingHorizontal: 20,
+        backgroundColor: '#eee0d3',
+        minHeight: Platform.OS === 'web' ? '100vh' : undefined,
     },
     title: { 
-        fontSize: 22, 
+        fontSize: Platform.OS === 'web' ? 28 : 22,
         fontWeight: '800', 
         color: '#3d2f49', 
         textAlign: 'center',
@@ -186,10 +209,12 @@ const styles = StyleSheet.create({
         color: '#3d2f49', 
         marginTop: 20, 
         textAlign: 'left', 
-        width: '75%'
+        width: '90%',
+        maxWidth: 400,
     },
     input: { 
-        width: '75%', 
+        width: '90%',
+        maxWidth: 400,
         height: 45, 
         borderColor: '#ccc', 
         borderWidth: 1, 
@@ -198,26 +223,28 @@ const styles = StyleSheet.create({
         marginTop: 15, 
         paddingHorizontal: 10, 
         fontSize: 16, 
-        color: '#616161' 
+        color: '#616161',
     },
     picker: { 
-        width: '75%', 
+        width: '90%',
+        maxWidth: 400,
         height: 45, 
         marginTop: 15, 
         backgroundColor: '#fff', 
         borderRadius: 12, 
         borderWidth: 1, 
         borderColor: '#ccc', 
-        color: '#616161' 
+        color: '#616161'
     },
     botao: { 
-        width: '75%', 
+        width: '90%',
+        maxWidth: 400,
         height: 50, 
         backgroundColor: '#3d2f49', 
         borderRadius: 12, 
         marginTop: 40, 
         marginBottom: 30,
-        justifyContent: "center" 
+        justifyContent: "center"
     },
     botaoTexto: { 
         color: '#fff', 
@@ -229,7 +256,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        width: '75%', 
+        width: '90%',
+        maxWidth: 400,
         marginTop: 15,
         paddingHorizontal: 5
     },
