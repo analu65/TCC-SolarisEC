@@ -1,10 +1,15 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, Image } from "react-native";
+import { 
+  View, Text, TextInput, ScrollView, TouchableOpacity, 
+  StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, 
+  Platform, Image 
+} from "react-native";
 import { collection, getDocs } from "firebase/firestore";
 import { db, storage } from "../controller/controller";
 import { Ionicons } from '@expo/vector-icons'; 
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as ImagePicker from 'expo-image-picker';
+import { getFunctions, httpsCallable } from "firebase/functions";
 
 const EmailComposerScreen = () => {
   const [assunto, setAssunto] = useState('');
@@ -37,8 +42,9 @@ const EmailComposerScreen = () => {
       });
       setUsuarios(emailsList);
       setTotalEmails(emailsList.length);
+      console.log(`✅ Encontrados ${emailsList.length} usuários com email`);
     } catch (error) {
-      console.error('Erro ao buscar emails', error);
+      console.error('❌ Erro ao buscar emails', error);
       Alert.alert('Erro', 'Não foi possível carregar os emails dos usuários');
     }
   };
@@ -61,9 +67,10 @@ const EmailComposerScreen = () => {
 
       if (!result.canceled) {
         setImagem(result.assets[0]);
+        console.log('✅ Imagem selecionada');
       }
     } catch (error) {
-      console.error('Erro ao selecionar imagem:', error);
+      console.error('❌ Erro ao selecionar imagem:', error);
       Alert.alert('Erro', 'Não foi possível selecionar a imagem');
     }
   };
@@ -71,6 +78,7 @@ const EmailComposerScreen = () => {
   const fazerUploadImagem = async () => {
     if (!imagem) return null;
     setUploading(true);
+    console.log('📤 Iniciando upload da imagem...');
 
     try {
       const response = await fetch(imagem.uri);
@@ -80,9 +88,10 @@ const EmailComposerScreen = () => {
 
       await uploadBytes(storageRef, blob);
       const downloadURL = await getDownloadURL(storageRef);
+      console.log('✅ Upload da imagem concluído:', downloadURL);
       return downloadURL;
     } catch (error) {
-      console.error('Erro no upload:', error);
+      console.error('❌ Erro no upload:', error);
       Alert.alert('Erro', 'Falha ao fazer upload da imagem');
       return null;
     } finally {
@@ -91,96 +100,100 @@ const EmailComposerScreen = () => {
   };
 
   const enviarEmails = async () => {
+    console.log('🔄 === INICIANDO PROCESSO DE ENVIO ===');
+    console.log('📝 Assunto:', assunto);
+    console.log('📝 Mensagem:', mensagem);
+    console.log('👥 Total usuários:', usuarios.length);
+    
     if (!assunto.trim() || !mensagem.trim()) {
-        Alert.alert('Atenção', 'Preencha o assunto e a mensagem');
-        return;
+      console.log('❌ VALIDAÇÃO FALHOU: assunto ou mensagem vazio');
+      Alert.alert('Atenção', 'Preencha o assunto e a mensagem');
+      return;
     }
     
     if (usuarios.length === 0) {
-        Alert.alert('Atenção', 'Nenhum email encontrado no banco de dados');
-        return;
+      console.log('❌ VALIDAÇÃO FALHOU: nenhum usuário encontrado');
+      Alert.alert('Atenção', 'Nenhum email encontrado no banco de dados');
+      return;
     }
     
-    Alert.alert('Confirmar envio', `Enviar email para ${totalEmails} pessoas?`, [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Enviar', onPress: confirmarEnvio }
-    ]);
-}; 
-  const confirmarEnvio = async () => {
+    console.log('✅ TODAS VALIDAÇÕES PASSARAM!');
+    console.log('🚀 INICIANDO ENVIO...');
+    await executarEnvioDeEmails();
+  };
+
+  const executarEnvioDeEmails = async () => {
+    console.log('🚀 === EXECUTANDO ENVIO DE EMAILS ===');
     setEnviando(true);
+
     try {
-      // Primeiro faz upload da imagem se existir
       let urlImagem = null;
       if (imagem) {
+        console.log('📤 Fazendo upload da imagem...');
         urlImagem = await fazerUploadImagem();
+        console.log('✅ URL da imagem:', urlImagem);
       }
 
-      const response = await fetch('https://us-central1-tcc--solaris.cloudfunctions.net/sendBulkEmails', {
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json',
-        }, 
-        body: JSON.stringify({
-          assunto: assunto,
-          mensagem: mensagem,
-          imagemUrl: urlImagem,
-          emails: usuarios.map(u => ({ email: u.email, name: u.name }))
-        })
-      });
-      
-      const result = await response.json();
-      if (result.sucessos) {
-        Alert.alert('Sucesso!', `Emails enviados para ${result.sucessos} pessoas`,
+      const payload = {
+        assunto: assunto,
+        mensagem: mensagem,
+        imagemUrl: urlImagem,
+        emails: usuarios.map(u => ({ email: u.email, name: u.name }))
+      };
+
+      console.log('📦 PAYLOAD PREPARADO:', payload);
+
+      const functions = getFunctions();
+      const sendBulkEmails = httpsCallable(functions, "sendBulkEmails");
+      const result = await sendBulkEmails(payload);
+
+      console.log('📊 RESULTADO FINAL:', result.data);
+
+      if (result.data?.sucessos !== undefined) {
+        Alert.alert(
+          '📧 Resultado do Envio', 
+          `✅ Sucessos: ${result.data.sucessos}\n❌ Erros: ${result.data.erros}`,
           [{ text: 'OK', onPress: limparFormulario }]
         );
       } else {
-        throw new Error(result.error || 'Erro desconhecido');
-      } 
+        throw new Error(result.data?.error || 'Formato de resposta inesperado');
+      }
+
     } catch (error) {
-      console.error('Erro no envio', error);
-      Alert.alert('Erro', 'Não foi possível enviar os emails. Tente novamente');
+      console.error('❌ ERRO COMPLETO:', error);
+      Alert.alert(
+        'Erro no Envio', 
+        `Falha ao enviar emails:\n\n${error.message}`
+      );
     } finally {
+      console.log('🏁 PROCESSO FINALIZADO');
       setEnviando(false);
     }
   };
 
   const limparFormulario = () => {
+    console.log('🧹 Limpando formulário');
     setAssunto('');
     setMensagem('');
     setImagem(null);
   };
 
-    
-    return (
-        <KeyboardAvoidingView 
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+  return (
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         
         <View style={styles.header}>
           <Ionicons name="mail-outline" size={24} color="#dd6b70" />
           <Text style={styles.headerTitle}>Enviar Email</Text>
         </View>
-        
-        <View style={styles.infoCard}>
-          <View style={styles.infoRow}>
-            <Ionicons name="people-outline" size={20} color="#666" />
-            <Text style={styles.infoText}>
-              {totalEmails} destinatários encontrados
-            </Text>
-          </View>
-          <TouchableOpacity 
-            style={styles.refreshButton}
-            onPress={buscarEmailsDoFirebase} //botao de refresh busca com a funcao buscaremailsdofirebase
-          >
-            <Ionicons name="refresh-outline" size={18} color="#dd6b70" />
-          </TouchableOpacity>
-        </View>
-        
+
+        {/* Assunto */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Assunto</Text>
           <TextInput
-            style={styles.input} //input do assunto
+            style={styles.input}
             value={assunto}
             onChangeText={setAssunto}
             placeholder="Digite o assunto do email..."
@@ -188,9 +201,10 @@ const EmailComposerScreen = () => {
           />
         </View>
 
+        {/* Mensagem */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Mensagem</Text>
-          <TextInput //campo da mensagem
+          <TextInput
             style={[styles.input, styles.messageInput]}
             value={mensagem}
             onChangeText={setMensagem}
@@ -202,55 +216,26 @@ const EmailComposerScreen = () => {
           />
           <Text style={styles.charCount}>{mensagem.length}/1000</Text> 
         </View>
-        <View style={styles.inputContainer}>
-      <Text style={styles.label}>Imagem (opcional)</Text>
-      
-      {imagem ? (
-        <View style={styles.imageContainer}>
-          <Image source={{ uri: imagem.uri }} style={styles.imagePreview} />
-          <TouchableOpacity 
-            style={styles.removeImageButton}
-            onPress={() => setImagem(null)}
-          >
-            <Ionicons name="close-circle" size={24} color="#dd6b70" />
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <TouchableOpacity 
-          style={styles.imagePickerButton}
-          onPress={selecionarImagem}
-          disabled={uploading}
-        >
-          {uploading ? (
-            <ActivityIndicator color="#dd6b70" />
-          ) : (
-            <>
-              <Ionicons name="image-outline" size={24} color="#dd6b70" />
-              <Text style={styles.imagePickerText}>Selecionar Imagem</Text>
-            </>
-          )}
-        </TouchableOpacity>
-      )}
-    </View>
         
+        {/* Botão Enviar */}
         <View style={styles.buttonContainer}>
-
           <TouchableOpacity 
             style={[styles.sendButton, enviando && styles.sendButtonDisabled]}
             onPress={enviarEmails}
             disabled={enviando}
           >
             {enviando ? (
-              <ActivityIndicator color="white" size="small" />
-            ) : (
               <>
-                <Ionicons name="send-outline" size={18} color="white" />
-                <Text style={styles.sendButtonText}>Enviar</Text>
+                <ActivityIndicator color="white" size="small" />
+                <Text style={styles.sendButtonText}>Enviando...</Text>
               </>
+            ) : (
+              <Text style={styles.sendButtonText}>Enviar</Text>
             )}
           </TouchableOpacity>
         </View>
-        
+
+        {/* Preview de destinatários */}
         <View style={styles.emailPreview}>
           <Text style={styles.previewTitle}>Lista de destinatários:</Text>
           {usuarios.slice(0, 3).map((user, index) => (
@@ -265,16 +250,16 @@ const EmailComposerScreen = () => {
             </Text>
           )}
         </View>
-
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F7EBE6',
   },
   scrollView: {
     flex: 1,
@@ -349,31 +334,18 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     marginBottom: 30,
-  },
-  previewButton: {
-    backgroundColor: 'white',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  previewButtonText: {
-    marginLeft: 8,
-    fontSize: 16,
-    color: '#666',
   },
   sendButton: {
     backgroundColor: '#dd6b70',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
     borderRadius: 25,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 150,
   },
   sendButtonDisabled: {
     backgroundColor: '#999',

@@ -162,7 +162,7 @@ export default function SignUp({navigation}){
             <div style={{
                 height: '100vh',
                 overflow: 'auto',
-                backgroundColor: '#eee0d3'
+                backgroundColor: '#F7EBE6'
             }}>
                 {renderContent()}
             </div>

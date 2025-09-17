@@ -127,7 +127,7 @@ export default function Login({navigation}){
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#eee0d3',
+        backgroundColor: '#F7EBE6',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -136,7 +136,6 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         color: '#3d2f49',
         textAlign: 'center',
-        textShadowColor: 'rgba(61, 47, 73, 0.3)',
         textShadowOffset: { width: 2, height: 2 },
         textShadowRadius: 4,
         marginBottom: 30,
