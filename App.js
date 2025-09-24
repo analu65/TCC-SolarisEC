@@ -8,7 +8,8 @@ import HomeProfessor from './screens/HomeProfessor';
 import HomeAluno from './screens/HomeAluno';
 import Avisos from './screens/Avisos';
 import Turmas from './screens/turmas';
-import Anamnese from './screens/anamnese';
+import AnamneseAluno from './screens/anamnese';
+import AnamneseProfessor from './screens/anamneseProfessor';
 import Selection from './screens/selection';
 import { StatusBar } from 'expo-status-bar';
 import SignUp from './screens/SignUp';
@@ -92,7 +93,7 @@ function DrawerProfessor() {
         options={{ title: 'Início' }}
       />
       <Drawer.Screen name='Turmas' component={Turmas} />
-      <Drawer.Screen name='Anamnese' component={Anamnese} />
+      <Drawer.Screen name='Anamnese' component={AnamneseProfessor}/>
     </Drawer.Navigator>
   );
 }
@@ -106,7 +107,7 @@ function DrawerAluno() {
         component={BottomTabAluno} 
         options={{ title: 'Início' }}
       />
-      <Drawer.Screen name='AvisosDrawer' component={Avisos} options={{ title: 'Avisos' }} />
+      <Drawer.Screen name='Anamnese' component={AnamneseAluno}/>
     </Drawer.Navigator>
   );
 }

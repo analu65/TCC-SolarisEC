@@ -2,7 +2,7 @@ import { View, StyleSheet, TouchableOpacity, Text, ScrollView, Switch, TextInput
 import { useState } from "react";
 import { Picker } from "@react-native-picker/picker";
 import { db, auth } from "../controller/controller";
-import { collection, addDoc, setDoc, doc } from "firebase/firestore";
+import { collection, addDoc, setDoc, doc, query, where, getDocs } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function SignUp({navigation}){

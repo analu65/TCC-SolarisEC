@@ -5,16 +5,16 @@ const nodemailer = require("nodemailer");
 
 setGlobalOptions({maxInstances: 10});
 
-// 🔹 Configuração do Gmail
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "SEU_EMAIL@gmail.com", // seu Gmail
-    pass: "SENHA_DE_APP_AQUI", // a senha de app gerada
+    user: "analuciacesario910@gmail.com", 
+    pass: "xufk exch ttsa cwoo",
   },
 });
 
-// 🔹 Função que o app chama
+//fumcao
 exports.sendBulkEmails = onCall(async (request) => {
   const {assunto, mensagem, imagemUrl, emails} = request.data;
 

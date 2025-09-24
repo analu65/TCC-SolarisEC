@@ -4,7 +4,7 @@ import { auth } from "../controller/controller"; // importe o auth
 import { onAuthStateChanged } from 'firebase/auth';
 import { useState, useEffect } from 'react';
 
-export default function AnamneseAluno() {
+export default function AnamneseProfessor() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 //coisas do context q vou deixar direto no codigo da anamnese pra ficar mais simples (context é do conteudo de autenticacao q a mari explicou)
