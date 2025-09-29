@@ -2,8 +2,11 @@
   "name": "functions",
   "description": "Cloud Functions for Firebase",
   "scripts": {
+<<<<<<< Updated upstream
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+=======
+>>>>>>> Stashed changes
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
     "start": "npm run shell",
@@ -15,6 +18,7 @@
   },
   "main": "index.js",
   "dependencies": {
+<<<<<<< Updated upstream
     "cors": "^2.8.5",
     "firebase-admin": "^13.5.0",
     "firebase-functions": "^6.4.0",
@@ -23,6 +27,12 @@
   "devDependencies": {
     "eslint": "^8.57.1",
     "eslint-config-google": "^0.14.0",
+=======
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^6.0.1"
+  },
+  "devDependencies": {
+>>>>>>> Stashed changes
     "firebase-functions-test": "^3.1.0"
   },
   "private": true
