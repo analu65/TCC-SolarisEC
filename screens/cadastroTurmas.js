@@ -101,7 +101,7 @@ const toggleAlunoSelecionado = (alunoId) => {
                 </Picker.item>
             </Picker>
 
-            <TextInput style={styles.input} placeholder="Digite o dia da turma" value={dias} onChangeText={setDias}/>
+            <TextInput style={styles.input} placeholder="Digite o dia da turma (ex: Segunda, Quarta, Sexta)" value={dias} onChangeText={setDias}/>
             <TextInput style={styles.input} placeholder="Digite o horário de início da aula" value={startTime} onChangeText={setStartTime}/>
             <TextInput style={styles.input} placeholder="Digite o horário de fim da aula" value={finishTime} onChangeText={setFinishTime}/>
 
