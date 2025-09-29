@@ -28,63 +28,82 @@ export default function cadastroTurmas({navigation}) {
                 id: doc.id,
                 ...doc.data()
             }));
-            setProfessor(professoresList);
+        setProfessor(professoresList);
 
-            const alunosQuery = query(collection(db, "classes"), where("tipo", "==", "aluno"));
-            const alunosSnapshot = await getDocs(alunosQuery);
-            const alunosList = alunosSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            setAlunos(alunosList);
-        } catch (error){
-            console.error('Erro ao carregar usuários', error)
-        }
-        };
-        const cadastrar = async () => {
-            if (!nome || !professor || !diasInput || !finishTime || !startTime) {
-                alert("Por favor, preencha todos os campos obrigatórios!");
-                return;
-            }
-            
-            try {
-                let alunosArray = [];
-            if (alunosSelecionados.length > 0) {
-                alunosArray = alunosSelecionados;
-            } else if (alunosInput) {
-                alunosArray = alunosInput 
-                    .split(',')
-                    .map(item => item.trim())
-                    .filter(item => item !== '');
-            }
-
-
-                const userDocR = doc(db, "classes");
-
-                await setDoc(userDocR, {
-                    nome: nome || '',
-                    vagas: vagas || '',
-                    dias: dias || '',
-                    alunos: alunosArray || '',
-                    finishTime: finishTime || '',
-                    startTime: startTime || '',
-                    professor: professor || '',
-                    alunos: alunos || ''
-
-                });
-
-            alert ('Cadastro realizado com sucesso');
-            navigation.navigate('turmas');
-    } catch (error) {
-        alert("Erro ao cadastrar: " + error.message);
+        const alunosQuery = query(collection(db, "classes"), where("tipo", "==", "aluno"));
+        const alunosSnapshot = await getDocs(alunosQuery);
+        const alunosList = alunosSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+        setAlunos(alunosList);
+    } catch (error){
+        console.error('Erro ao carregar usuários', error)
     }
+    };
+    const cadastrar = async () => {
+        if (!nome || !professor || !diasInput || !finishTime || !startTime) {
+            alert("Por favor, preencha todos os campos obrigatórios!");
+            return;
+        }
+            
+        try {
+            let alunosArray = [];
+        if (alunosSelecionados.length > 0) {
+            alunosArray = alunosSelecionados;
+        } else if (alunosInput) {
+            alunosArray = alunosInput 
+                .split(',')
+                .map(item => item.trim())
+                .filter(item => item !== '');
+        }
+        const turmaData = {
+            nome: nome || '',
+            vagas: vagas || '',
+            dias: dias || '',
+            alunos: alunosArray || '',
+            finishTime: finishTime || '',
+            startTime: startTime || '',
+            professor: professor || '',
+            alunos: alunos || ''
+        }
+
+        const turmaRef = await addDoc(collection(db, "classes"), turmaData);
+
+        alert ('Cadastro realizado com sucesso');
+        navigation.goBack();
+
+} catch (error) {
+    alert("Erro ao cadastrar: " + error.message);
+}
+const toggleAlunoSelecionado = (alunoId) => {
+    setAlunosSelecionados(prev => {
+        if (prev.includes(alunoId)) {
+            return prev.filter(id => id !== alunoId);
+        } else {
+            return [...prev, alunoId];
+        }
+    });
+};
+
 };
     const renderConteudo = () => {
         <View style = {styles.content}>
             <View style = {styles.titulo}>Cadastro turma</View>
             <View style = {styles.subtitulo}>Preencha os dados abaixo para criar uma nova turma</View>
-            <TextInput style={styles.input} placeholder="Digite o nome da turma (Ex: Lira, Tecido, Yoga...)" value={nome} onChangeText={setNome} autoCapitalize="none"/>
-            <TextInput style={styles.input} placeholder="Digite o dia da turma" value={dias} onChangeText={setDias} autoCapitalize="none"/>
+            <TextInput style={styles.input} placeholder="Digite o nome da turma (Ex: Lira, Tecido, Yoga...)" value={nome} onChangeText={setNome}/>
+            <Text style={styles.label}>Professor responsável</Text>
+            <Picker selectedValue={professor} onValueChange={setProfessor} style = {styles.picker}>
+                <Picker.item label="Selecione um professor" value="">
+                {professoresList.map(professor => (
+                    <Picker.item key={professor.id} label={professor.nome} value={professor.id}></Picker.item>
+                ))}
+                </Picker.item>
+            </Picker>
+
+            <TextInput style={styles.input} placeholder="Digite o dia da turma" value={dias} onChangeText={setDias}/>
+            <TextInput style={styles.input} placeholder="Digite o horário de início da aula" value={startTime} onChangeText={setStartTime}/>
+            <TextInput style={styles.input} placeholder="Digite o horário de fim da aula" value={finishTime} onChangeText={setFinishTime}/>
 
             
 
