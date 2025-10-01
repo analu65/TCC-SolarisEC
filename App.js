@@ -15,6 +15,7 @@ import { StatusBar } from 'expo-status-bar';
 import SignUp from './screens/SignUp';
 import Login from './screens/Login';
 import EmailComposerScreen from './screens/emailComposerScreen';
+import cadastroTurmas from './screens/cadastroTurmas';
 
 // Bottom Tab para Professor
 function BottomTabProfessor() {
@@ -93,6 +94,7 @@ function DrawerProfessor() {
         options={{ title: 'Início' }}
       />
       <Drawer.Screen name='Turmas' component={Turmas} />
+      <Drawer.Screen name='CadastroTurmas' component={cadastroTurmas} />
       <Drawer.Screen name='Anamnese' component={AnamneseProfessor}/>
     </Drawer.Navigator>
   );
