@@ -275,10 +275,10 @@ const styles = StyleSheet.create({
         maxWidth: 400,
         maxHeight: 200,
         borderColor: '#3d2f49',
-        borderRadius: 12,
+        borderRadius: 10,
         backgroundColor: '#fff',
         marginTop: 10,
-        borderWidth: 4
+        borderWidth: 2
     },
     alunoItem: { //item normal do aluno
         borderBottomWidth: 1,

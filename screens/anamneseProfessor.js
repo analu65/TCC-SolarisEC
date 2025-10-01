@@ -11,7 +11,7 @@ export default function AnamneseProfessor() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
-      setLoading(false);
+      setLoading(false); //const para unsubscribe
     });
 
     return unsubscribe;

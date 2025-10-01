@@ -4,14 +4,14 @@ import {
   StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, 
   Platform, Image 
 } from "react-native";
-import { collection, getDocs } from "firebase/firestore";
-import { db, storage } from "../controller/controller";
-import { Ionicons } from '@expo/vector-icons'; 
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import * as ImagePicker from 'expo-image-picker';
+import { collection, getDocs } from "firebase/firestore"; //dados para colocar no firebase
+import { db, storage } from "../controller/controller"; //banco de dados e talvez storage
+import { Ionicons } from '@expo/vector-icons'; //icone
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; //talvez deixe, para imagem
+import * as ImagePicker from 'expo-image-picker'; //picker eh o componente de visual
 import { getFunctions, httpsCallable } from "firebase/functions";
 
-const EmailComposerScreen = () => {
+const EmailComposerScreen = () => { //dados para o firebase
   const [assunto, setAssunto] = useState('');
   const [mensagem, setMensagem] = useState('');
   const [enviando, setEnviando] = useState(false);
@@ -26,22 +26,22 @@ const EmailComposerScreen = () => {
 
   const buscarEmailsDoFirebase = async () => {
     try {
-      const usersRef = collection(db, 'users');
-      const snapshot = await getDocs(usersRef);
+      const usersRef = collection(db, 'users'); //pega users do db users cadastrados
+      const snapshot = await getDocs(usersRef); //pega documentos do users do usersref
       const emailsList = [];
 
       snapshot.forEach(doc => {
-        const userData = doc.data();
-        if (userData.email) {
-          emailsList.push({
+        const userData = doc.data(); //userdata pega a data dos documentos
+        if (userData.email) { //se tiver emails no userdata
+          emailsList.push({ //faz uma lista de emails, nomes e usuarios
             email: userData.email,
             name: userData.name || userData.nome || 'Usuário',
             id: doc.id
           });
         }
       });
-      setUsuarios(emailsList);
-      setTotalEmails(emailsList.length);
+      setUsuarios(emailsList); //usuarios sao a lista de emails
+      setTotalEmails(emailsList.length); //totalemails eh o tamanho
       console.log(`✅ Encontrados ${emailsList.length} usuários com email`);
     } catch (error) {
       console.error('❌ Erro ao buscar emails', error);
