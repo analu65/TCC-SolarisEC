@@ -69,7 +69,7 @@ const EmailComposerScreen = () => { //dados para o firebase
   const executarEnvioDeEmails = async () => {
     console.log('Executando envio de emails');
     setEnviando(true); //faz o setenviando ser true
-
+      try{
       const payload = { //coloca os itens com os do firebase
         assunto: assunto,
         mensagem: mensagem,
@@ -99,7 +99,7 @@ const EmailComposerScreen = () => { //dados para o firebase
       Alert.alert(
         'Erro no Envio', 
         `Falha ao enviar emails:\n\n${error.message}`
-      )
+      );
     } finally {
       console.log('PROCESSO FINALIZADO');
       setEnviando(false);
@@ -110,7 +110,6 @@ const EmailComposerScreen = () => { //dados para o firebase
     console.log('🧹 Limpando formulário');
     setAssunto('');
     setMensagem('');
-    setImagem(null);
   };
 
   return (
@@ -187,7 +186,7 @@ const EmailComposerScreen = () => { //dados para o firebase
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
-  );
+  )};
 
 
 
