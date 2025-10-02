@@ -1,23 +1,17 @@
 import { useState, useEffect } from "react";
-import { 
-  View, Text, TextInput, ScrollView, TouchableOpacity, 
-  StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, 
-  Platform, Image 
-} from "react-native";
+import {View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, Image } from "react-native";
 import { collection, getDocs } from "firebase/firestore"; //dados para colocar no firebase
-import { db, storage } from "../controller/controller"; //banco de dados e talvez storage
+import { db } from "../controller/controller"; //banco de dados e talvez storage
 import { Ionicons } from '@expo/vector-icons'; //icone
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; //talvez deixe, para imagem
 import * as ImagePicker from 'expo-image-picker'; //picker eh o componente de visual
 import { getFunctions, httpsCallable } from "firebase/functions";
 
 const EmailComposerScreen = () => { //dados para o firebase
   const [assunto, setAssunto] = useState('');
   const [mensagem, setMensagem] = useState('');
-  const [enviando, setEnviando] = useState(false);
-  const [usuarios, setUsuarios] = useState([]);
-  const [totalEmails, setTotalEmails] = useState(0);
-  const [imagem, setImagem] = useState(null);
+  const [enviando, setEnviando] = useState(false); //enviando pra carregar
+  const [usuarios, setUsuarios] = useState([]); //usuarios lista
+  const [totalEmails, setTotalEmails] = useState(0); 
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -34,139 +28,80 @@ const EmailComposerScreen = () => { //dados para o firebase
         const userData = doc.data(); //userdata pega a data dos documentos
         if (userData.email) { //se tiver emails no userdata
           emailsList.push({ //faz uma lista de emails, nomes e usuarios
-            email: userData.email,
-            name: userData.name || userData.nome || 'Usuário',
+            email: userData.email, //email do userdata
+            name: userData.nome || 'Usuário', //nome do usuario
             id: doc.id
           });
         }
       });
       setUsuarios(emailsList); //usuarios sao a lista de emails
       setTotalEmails(emailsList.length); //totalemails eh o tamanho
-      console.log(`✅ Encontrados ${emailsList.length} usuários com email`);
+      console.log(`${emailsList.length} usuários encontrados com email`); //numero de usuarios encontrados
     } catch (error) {
-      console.error('❌ Erro ao buscar emails', error);
-      Alert.alert('Erro', 'Não foi possível carregar os emails dos usuários');
-    }
-  };
-
-  const selecionarImagem = async () => {
-    try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-      if (status !== 'granted') {
-        Alert.alert('Permissão necessária', 'Precisamos de acesso à sua galeria.');
-        return;
-      }
-      
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.8,
-      });
-
-      if (!result.canceled) {
-        setImagem(result.assets[0]);
-        console.log('✅ Imagem selecionada');
-      }
-    } catch (error) {
-      console.error('❌ Erro ao selecionar imagem:', error);
-      Alert.alert('Erro', 'Não foi possível selecionar a imagem');
-    }
-  };
-
-  const fazerUploadImagem = async () => {
-    if (!imagem) return null;
-    setUploading(true);
-    console.log('📤 Iniciando upload da imagem...');
-
-    try {
-      const response = await fetch(imagem.uri);
-      const blob = await response.blob();
-      const nomeArquivo = `emails/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
-      const storageRef = ref(storage, nomeArquivo);
-
-      await uploadBytes(storageRef, blob);
-      const downloadURL = await getDownloadURL(storageRef);
-      console.log('✅ Upload da imagem concluído:', downloadURL);
-      return downloadURL;
-    } catch (error) {
-      console.error('❌ Erro no upload:', error);
-      Alert.alert('Erro', 'Falha ao fazer upload da imagem');
-      return null;
-    } finally {
-      setUploading(false);
+      console.error('Erro ao buscar emails', error);
+      Alert.alert('Não foi possível carregar os emails dos usuários');
     }
   };
 
   const enviarEmails = async () => {
-    console.log('🔄 === INICIANDO PROCESSO DE ENVIO ===');
-    console.log('📝 Assunto:', assunto);
-    console.log('📝 Mensagem:', mensagem);
-    console.log('👥 Total usuários:', usuarios.length);
+    console.log('iniciando envio'); //deixa ate ver se da certo
+    console.log('Assunto:', assunto);
+    console.log('Mensagem:', mensagem);
+    console.log('Total usuários:', usuarios.length); //total de usuarios .. talvez nao precise
     
-    if (!assunto.trim() || !mensagem.trim()) {
-      console.log('❌ VALIDAÇÃO FALHOU: assunto ou mensagem vazio');
-      Alert.alert('Atenção', 'Preencha o assunto e a mensagem');
+    if (!assunto.trim() || !mensagem.trim()) { //se o assunto ou a mensagem estiverem vazios
+      console.log('assunto ou mensagem vazio');
+      Alert.alert('Preencha o assunto e a mensagem');
       return;
     }
     
     if (usuarios.length === 0) {
-      console.log('❌ VALIDAÇÃO FALHOU: nenhum usuário encontrado');
-      Alert.alert('Atenção', 'Nenhum email encontrado no banco de dados');
+      console.log('nenhum usuário encontrado');
+      Alert.alert('Nenhum email encontrado no banco de dados'); //ate aqui esta funcionando, encontra os emails e entra no processo de envio
       return;
     }
     
-    console.log('✅ TODAS VALIDAÇÕES PASSARAM!');
-    console.log('🚀 INICIANDO ENVIO...');
-    await executarEnvioDeEmails();
+    console.log('todas as validacoes passaram');
+    console.log('Iniciando envio...'); //ate aqui vai
+    await executarEnvioDeEmails(); //tenta executar o envio
   };
 
   const executarEnvioDeEmails = async () => {
-    console.log('🚀 === EXECUTANDO ENVIO DE EMAILS ===');
-    setEnviando(true);
+    console.log('Executando envio de emails');
+    setEnviando(true); //faz o setenviando ser true
 
-    try {
-      let urlImagem = null;
-      if (imagem) {
-        console.log('📤 Fazendo upload da imagem...');
-        urlImagem = await fazerUploadImagem();
-        console.log('✅ URL da imagem:', urlImagem);
-      }
-
-      const payload = {
+      const payload = { //coloca os itens com os do firebase
         assunto: assunto,
         mensagem: mensagem,
-        imagemUrl: urlImagem,
         emails: usuarios.map(u => ({ email: u.email, name: u.name }))
       };
 
-      console.log('📦 PAYLOAD PREPARADO:', payload);
+      console.log('preparado', payload);
 
       const functions = getFunctions();
-      const sendBulkEmails = httpsCallable(functions, "sendBulkEmails");
-      const result = await sendBulkEmails(payload);
+      const sendBulkEmails = httpsCallable(functions, "sendBulkEmails"); //pega funcao
+      const result = await sendBulkEmails(payload); //envia os emails
 
-      console.log('📊 RESULTADO FINAL:', result.data);
+      console.log(' RESULTADO FINAL:', result.data);
 
       if (result.data?.sucessos !== undefined) {
         Alert.alert(
-          '📧 Resultado do Envio', 
-          `✅ Sucessos: ${result.data.sucessos}\n❌ Erros: ${result.data.erros}`,
+          ' Resultado do Envio', 
+          ` Sucessos: ${result.data.sucessos}\n Erros: ${result.data.erros}`,
           [{ text: 'OK', onPress: limparFormulario }]
         );
       } else {
         throw new Error(result.data?.error || 'Formato de resposta inesperado');
       }
 
-    } catch (error) {
-      console.error('❌ ERRO COMPLETO:', error);
+    }catch (error) {
+      console.error('ERRO COMPLETO:', error);
       Alert.alert(
         'Erro no Envio', 
         `Falha ao enviar emails:\n\n${error.message}`
-      );
+      )
     } finally {
-      console.log('🏁 PROCESSO FINALIZADO');
+      console.log('PROCESSO FINALIZADO');
       setEnviando(false);
     }
   };
@@ -235,7 +170,7 @@ const EmailComposerScreen = () => { //dados para o firebase
           </TouchableOpacity>
         </View>
 
-        {/* Preview de destinatários */}
+        {/* preview de destinatários */}
         <View style={styles.emailPreview}>
           <Text style={styles.previewTitle}>Lista de destinatários:</Text>
           {usuarios.slice(0, 3).map((user, index) => (
@@ -253,7 +188,7 @@ const EmailComposerScreen = () => { //dados para o firebase
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
+
 
 
 const styles = StyleSheet.create({
