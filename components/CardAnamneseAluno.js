@@ -144,6 +144,8 @@ export default function CardAnamnese({ userId }) {
 
 const styles = StyleSheet.create({
   card: {
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 15,
     margin: 10,
     backgroundColor: '#f8f9fa',

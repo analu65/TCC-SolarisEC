@@ -71,8 +71,23 @@ export default function Turmas() { //continuar cadastro de turmas com base no ca
 } 
 
 const styles = StyleSheet.create({
-    card: {
+    container: {
+        alignItems: 'center',
+        justifyContent: 'center'
 
+    },
+    card: {
+        padding:15,
+        margin: 10,
+        backgroundColor: '#f8f9fa',
+        borderRadius: 8,
+        width: '95%',
+        maxHeight: 500,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
     },
     header: {
 
