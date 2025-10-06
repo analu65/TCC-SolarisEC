@@ -5,13 +5,11 @@ import { db } from "../controller/controller";
 
 export default function CardAnamnese({ userId }) {
   const [dados, setDados] = useState(null);
-  const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
   
   useEffect(() => {
     const carregarDados = async () => {
       try {
-        setCarregando(true);
         setErro(null);
         
         const userDocRef = doc(db, 'users', userId);
@@ -27,8 +25,6 @@ export default function CardAnamnese({ userId }) {
       } catch (error) {
         setErro("Erro ao carregar dados");
         console.error("Erro:", error);
-      } finally {
-        setCarregando(false);
       }
     };
     
@@ -36,18 +32,8 @@ export default function CardAnamnese({ userId }) {
       carregarDados();
     } else {
       setErro("ID do usuário não fornecido");
-      setCarregando(false);
     }
   }, [userId]);
-  
-  if (carregando) {
-    return (
-      <View style={[styles.card, styles.centerContent]}>
-        <ActivityIndicator size="large" color="#dd6b70" />
-        <Text style={styles.carregandoTexto}>Carregando dados...</Text>
-      </View>
-    );
-  }
   
   if (erro) {
     return (
