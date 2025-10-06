@@ -1,4 +1,5 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 const {setGlobalOptions} = require("firebase-functions/v2");
 const {onCall} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
@@ -50,6 +51,8 @@ exports.sendBulkEmails = onCall(async (request) => {
   return {sucessos, erros};
 });
 =======
+=======
+>>>>>>> Stashed changes
 /**
  * Import function triggers from their respective submodules:
  *
@@ -82,4 +85,7 @@ setGlobalOptions({ maxInstances: 10 });
 //   logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes

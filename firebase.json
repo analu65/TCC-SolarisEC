@@ -1,12 +1,18 @@
 {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
   "firestore": {
     "database": "(default)",
     "location": "southamerica-east1",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   "functions": [
     {
@@ -19,6 +25,7 @@
         "firebase-debug.*.log",
         "*.local"
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       ],
       "predeploy": [
         "npm --prefix \"$RESOURCE_DIR\" run lint"
@@ -26,11 +33,16 @@
     }
   ]
 =======
+=======
+>>>>>>> Stashed changes
       ]
     }
   ],
   "storage": {
     "rules": "storage.rules"
   }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 }
