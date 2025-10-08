@@ -120,10 +120,9 @@ const EmailComposerScreen = () => { //dados para o firebase
         
         <View style={styles.header}>
           <Ionicons name="mail-outline" size={24} color="#dd6b70" />
-          <Text style={styles.headerTitle}>Enviar Email</Text>
+          <Text style={styles.tituloemail}>Enviar Email</Text>
         </View>
 
-        {/* Assunto */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Assunto</Text>
           <TextInput
@@ -135,8 +134,7 @@ const EmailComposerScreen = () => { //dados para o firebase
           />
         </View>
 
-        {/* Mensagem */}
-        <View style={styles.inputContainer}>
+        <View style={styles.inputContainer}> {/*container para os inputs de colocar coisas*/}
           <Text style={styles.label}>Mensagem</Text>
           <TextInput
             style={[styles.input, styles.messageInput]}
@@ -148,23 +146,23 @@ const EmailComposerScreen = () => { //dados para o firebase
             numberOfLines={8}
             textAlignVertical="top"
           />
-          <Text style={styles.charCount}>{mensagem.length}/1000</Text> 
+          <Text style={styles.charcontador}>{mensagem.length}/1000</Text> 
         </View>
         
         {/* Botão Enviar */}
-        <View style={styles.buttonContainer}>
+        <View style={styles.botaocontainer}>
           <TouchableOpacity 
-            style={[styles.sendButton, enviando && styles.sendButtonDisabled]}
+            style={[styles.botaoenviar, enviando && styles.botaoenviardesativado]}
             onPress={enviarEmails}
             disabled={enviando}
           >
             {enviando ? (
               <>
                 <ActivityIndicator color="white" size="small" />
-                <Text style={styles.sendButtonText}>Enviando...</Text>
+                <Text style={styles.botaoenviartexto}>Enviando...</Text>
               </>
             ) : (
-              <Text style={styles.sendButtonText}>Enviar</Text>
+              <Text style={styles.botaoenviartexto}>Enviar</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -193,7 +191,7 @@ const EmailComposerScreen = () => { //dados para o firebase
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7EBE6',
+    backgroundColor: '#FAF5ED',
   },
   scrollView: {
     flex: 1,
@@ -207,8 +205,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
-  headerTitle: {
-    fontSize: 24,
+  tituloemail: {
+    fontSize: 22,
     fontWeight: 'bold',
     marginLeft: 10,
     color: '#333',
@@ -236,9 +234,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
-  refreshButton: {
-    padding: 8,
-  },
   inputContainer: {
     marginBottom: 20,
   },
@@ -260,18 +255,18 @@ const styles = StyleSheet.create({
     height: 120,
     textAlignVertical: 'top',
   },
-  charCount: {
+  charcontador: {
     textAlign: 'right',
     color: '#999',
     fontSize: 12,
     marginTop: 5,
   },
-  buttonContainer: {
+  botaocontainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginBottom: 30,
   },
-  sendButton: {
+  botaoenviar: {
     backgroundColor: '#dd6b70',
     paddingVertical: 15,
     paddingHorizontal: 40,
@@ -281,10 +276,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minWidth: 150,
   },
-  sendButtonDisabled: {
+  botaoenviardesativado: {
     backgroundColor: '#999',
   },
-  sendButtonText: {
+  botaoenviartexto: {
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
@@ -321,40 +316,6 @@ const styles = StyleSheet.create({
     color: '#999',
     marginTop: 5,
     textAlign: 'center',
-  },
-  imagePickerButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderStyle: 'dashed',
-    borderRadius: 10,
-    padding: 20,
-    marginVertical: 10,
-  },
-  imagePickerText: {
-    marginLeft: 10,
-    color: '#dd6b70',
-    fontWeight: '600',
-  },
-  imageContainer: {
-    position: 'relative',
-    alignItems: 'center',
-  },
-  imagePreview: {
-    width: '100%',
-    height: 200,
-    borderRadius: 10,
-    marginVertical: 10,
-  },
-  removeImageButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: 'white',
-    borderRadius: 15,
   },
 });
 

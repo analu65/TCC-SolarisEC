@@ -7,29 +7,29 @@ export default function Selection({navigation}){
             {/*<ImageBackground source={require('../fotossolaris/begemelhor2.png')} style={styles.imgbackground}>*/}
                 
 
-                <Text style={styles.welcomeTitle}> Bem-vindo! </Text>
+                <Text style={styles.titulo}> Bem-vindo! </Text>
 
 
-                {/* CONTAINER DOS BOTÕES */}
-                <View style={styles.circusButtonsContainer}>
+                {/* container dos botoes */}
+                <View style={styles.botoescircocontainer}>
                     
-                    {/* BOTÃO DE LOGIN COM ESTILO DE CIRCO */}
-                    <View style={[styles.buttonsignup, styles.loginButtonWrapper]}>
+                    {/* botao de login */}
+                    <View style={[styles.buttonsignup, styles.loginbotaocontainer]}>
                         <TouchableOpacity 
-                            style={styles.circusLoginButton}
+                            style={styles.botaologin}
                             onPress={() => navigation.navigate('Login')}
                             activeOpacity={0.8}
                         >
-                            <Text style={styles.loginButtonText}>Já tenho cadastro</Text>
+                            <Text style={styles.botaologintexto}>Já tenho cadastro</Text>
                         </TouchableOpacity>
                     </View>
                     
                     <TouchableOpacity 
-                        style={styles.circusRegisterButton}
+                        style={styles.circosignupbotao}
                         onPress={() => navigation.navigate('SignUp')}
                         activeOpacity={0.8} //opacidade quando ele ta ativo, quando aperta o botão
                     >
-                        <Text style={styles.registerButtonText}>Quero me cadastrar</Text>
+                        <Text style={styles.signupbotaotexto}>Quero me cadastrar</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -41,7 +41,7 @@ export default function Selection({navigation}){
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F7EBE6', 
+        backgroundColor: '#FAF5ED', 
         justifyContent: 'center', 
         alignItems: 'center',
     }, 
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     },
 
 
-    welcomeTitle: {
+    titulo: {
         fontSize: 24,
         fontWeight: '800',
         color: '#3d2f49',
@@ -68,20 +68,20 @@ const styles = StyleSheet.create({
     
 
 
-    circusButtonsContainer: {
+    botoescircocontainer: {
         alignItems: 'center',
         width: '85%',
         marginBottom: 20,
     },
 
 
-    loginButtonWrapper: {
+    loginbotaocontainer: {
         width: '100%',
         marginBottom: 15,
     },
     
 
-    circusLoginButton: {
+    loginbotao: {
         backgroundColor: '#dd6b70',
         paddingVertical: 16,
         paddingHorizontal: 25,
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
     },
     
-    circusRegisterButton: {
+    circosignupbotao: {
         backgroundColor: '#3d2f49',
         paddingVertical: 16,
         paddingHorizontal: 25,
@@ -120,15 +120,15 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
     },
     
-    loginButtonText: {
-        color: '#eee0d3',
+    botaologintexto: {
+        color: '#fff',
         fontSize: 16,
         fontWeight: '700',
         textAlign: 'center',
     },
     
-    registerButtonText: {
-        color: '#eee0d3',
+    signupbotaotexto: {
+        color: '#fff',
         fontSize: 16,
         fontWeight: '700',
         textAlign: 'center',

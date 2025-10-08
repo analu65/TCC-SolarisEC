@@ -3,17 +3,17 @@ import { useState, useEffect } from "react";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "../controller/controller";
 export default function Turmas() { //continuar cadastro de turmas com base no cardanamnese
-    const [dadosTurmas, setDadosturmas] = useState([]);
-    const [erroTurma, setErroturma] = useState('');
+    const [dadosTurmas, setDadosturmas] = useState([]); //lista do dados das turmas
+    const [erroTurma, setErroturma] = useState(''); //const de erro
 
-    useEffect(() => {
+    useEffect(() => { //usei esse codigo que foi como a mari ensinou nas aulas para os outros inclusive o anamnese professor que consulta os alunos
         const loadData = async () => {
             try {
                 setErroturma(null);
                 const querySnapshot = await getDocs(collection(db, 'classes')); //pega todos os itens com o collection
                 
                 const todasTurmas = []; //lista com as turmas
-                querySnapshot.forEach((doc) => {
+                querySnapshot.forEach((doc) => { //para cada
                     todasTurmas.push({
                         id: doc.id,
                         ...doc.data()
@@ -22,7 +22,7 @@ export default function Turmas() { //continuar cadastro de turmas com base no ca
 
                 setDadosturmas(todasTurmas);
 
-            } catch (error) {
+            } catch (error) { //mensagem de erro
                 setErroturma("Erro ao carregar turmas");
                 console.error("Erro:", error);
             }
@@ -48,41 +48,43 @@ export default function Turmas() { //continuar cadastro de turmas com base no ca
         );
     }
 
-    const primeiraTurma = dadosTurmas[0];
  
     return(
         <View style = {styles.container}>
-        <View style = {styles.card}>
-            <View style = {styles.header}>
-                <Text style = {styles.nome}>{primeiraTurma.nome}</Text>
-            </View>
         <ScrollView style={styles.scrollContainer}>
+        {dadosTurmas.map((turma) => ( //pega todas as turmas do banco ao inves de uma so, mapeando todas e transformando na funcao turma
+            <View key={turma.id} style={styles.card}>
+            <View style={styles.header}>
+                <Text style={styles.nome}>{turma.nome}</Text>
+            </View>
             <View style={styles.secao}>
                 <Text style={styles.secaoDentro}>Professor responsável: </Text> {/*terminar professor*/}
-                <Text style={styles.secaoDentro}>Dia: {primeiraTurma.dias}</Text>
-                <Text style={styles.secaoDentro}>Horário de Início: {primeiraTurma.startTime}</Text>
-                <Text style={styles.secaoDentro}>Horário de término: {primeiraTurma.finishTime}</Text>
-                <Text style={styles.secaoDentro}>Alunos</Text> {/*terminar alunos no outro banco*/}
+                <Text style={styles.secaoDentro}>Dia: {turma.dias}</Text>
+                <Text style={styles.secaoDentro}>Horário de Início: {turma.startTime}</Text>
+                <Text style={styles.secaoDentro}>Horário de término: {turma.finishTime}</Text>
+                <Text style={styles.secaoDentro}>Alunos:</Text> {/*terminar alunos no outro banco*/}
             </View>
-        </ScrollView>
         </View>
+        ))}
+        </ScrollView>
         </View>
     );
 } 
 
 const styles = StyleSheet.create({
     container: {
-        alignItems: 'center',
-        justifyContent: 'center'
-
+        flex: 1,
+        padding: 10,
+    },
+    scrollContainer: {
+        flex: 1,
     },
     card: {
-        padding:15,
+        padding: 15,
         margin: 10,
         backgroundColor: '#f8f9fa',
         borderRadius: 8,
         width: '95%',
-        maxHeight: 500,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
@@ -90,11 +92,29 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     header: {
-
+        marginBottom: 10,
     },
     nome: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#3d2f49',
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#3d2f49',
     },
-})
+    secao: {
+        marginTop: 5,
+    },
+    secaoDentro: {
+        fontSize: 14,
+        marginBottom: 5,
+        color: '#333',
+    },
+    centerContent: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    erroTexto: {
+        fontSize: 16,
+        color: 'red',
+        textAlign: 'center',
+    }
+});

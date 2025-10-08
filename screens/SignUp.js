@@ -119,6 +119,7 @@ export default function SignUp({navigation}){
             <TextInput style={styles.input} placeholder="Número" value={numero} onChangeText={setNumero}/>
 
             <Text style={styles.titlemiddle}>ANAMNESE</Text>
+            <TextInput style = {styles.input} placeholder="Tipo Sanguíneo" value={tiposanguineo} onChangeText={setTiposanguineo}></TextInput>
             <TextInput style={[styles.input, styles.textArea]} placeholder="Alergias (separadas por vírgula)" value={alergiasinput} onChangeText={setAlergiasinput} multiline/>
             <TextInput style={[styles.input, styles.textArea]} placeholder="Medicamentos (separados por vírgula)" value={medicamentosinput} onChangeText={setMedicamentosinput} multiline/>
 
@@ -162,7 +163,7 @@ export default function SignUp({navigation}){
             <div style={{
                 height: '100vh',
                 overflow: 'auto',
-                backgroundColor: '#F7EBE6'
+                backgroundColor: '#FAF5ED'
             }}>
                 {renderContent()}
             </div>
@@ -179,13 +180,13 @@ export default function SignUp({navigation}){
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#eee0d3',
+        backgroundColor: '#FAF5ED',
     },
     content: {
         alignItems: 'center',
         paddingVertical: 30,
         paddingHorizontal: 20,
-        backgroundColor: '#eee0d3',
+        backgroundColor: '#FAF5ED',
         minHeight: Platform.OS === 'web' ? '100vh' : undefined,
     },
     title: { 

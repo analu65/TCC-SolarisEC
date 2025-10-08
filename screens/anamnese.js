@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import CardAnamnese from "../components/CardAnamneseAluno";
 import { auth } from "../controller/controller"; // importe o auth
 import { onAuthStateChanged } from 'firebase/auth';
@@ -35,6 +36,7 @@ export default function AnamneseAluno() {
 
   return ( //aqui continua
     <View style={styles.container}>
+      <FontAwesome5 name="notes-medical" size={24} color="#3d2f49" />
       <Text style={styles.titulo}>Ficha de Anamnese</Text>
       <CardAnamnese userId={user.uid} />
     </View>
@@ -50,7 +52,8 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 24,
     fontWeight: 'bold',
-    textAlign: 'center',
+    textAlign: 'left',
+    marginLeft: 12,
     marginVertical: 16,
     color: '#3d2f49',
   },

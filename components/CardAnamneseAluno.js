@@ -8,15 +8,15 @@ export default function CardAnamnese({ userId }) {
   const [erro, setErro] = useState(null);
   
   useEffect(() => {
-    const carregarDados = async () => {
+    const carregarDados = async () => { //o mesmo codigo do aluno vai ser utilizado no professor
       try {
         setErro(null);
         
-        const userDocRef = doc(db, 'users', userId);
+        const userDocRef = doc(db, 'users', userId); //vai no db e pega os usuarios
         const userDocSnap = await getDoc(userDocRef);
         
         if (userDocSnap.exists()) {
-          const userData = userDocSnap.data();
+          const userData = userDocSnap.data(); //userdata pega as informacoes do usuario
           console.log('Dados recebidos do Firebase:', userData);
           setDados(userData);
         } else {
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     margin: 10,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FAF5ED',
     borderRadius: 8,
     width: '100%',
     maxHeight: 500,

@@ -93,8 +93,8 @@ export default function CadastroTurmas({ navigation }) { //todos os itens para o
     const renderContent = () => { //conteudo do codigo pra depois passar pro return
         return (
             <View style={styles.content}>
-            <Text style={styles.title}>Cadastro turma</Text>
-            <Text style={styles.subtitle}>Preencha os dados abaixo para criar uma nova turma</Text>
+            <Text style={styles.titulo}>Cadastro turma</Text>
+            <Text style={styles.subtitulo}>Preencha os dados abaixo para criar uma nova turma</Text>
                 
             <TextInput style={styles.input} placeholder="Digite o nome da turma (Ex: Lira, Tecido, Yoga...)" value={nome} onChangeText={setNome}
             />
@@ -184,7 +184,7 @@ export default function CadastroTurmas({ navigation }) { //todos os itens para o
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#eee0d3',
+        backgroundColor: '#FAF5ED',
     },
     webContainer: {
         height: '100vh',
@@ -194,18 +194,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 30,
         paddingHorizontal: 20,
-        backgroundColor: '#eee0d3',
+        backgroundColor: '#FAF5ED',
         minHeight: Platform.OS === 'web' ? '100vh' : undefined,
     },
-    title: { 
-        fontSize: Platform.OS === 'web' ? 28 : 22,
+    titulo: { 
+        fontSize: 22,
         fontWeight: '800', 
         color: '#3d2f49', 
         textAlign: 'center',
         marginBottom: 10 
     },
-    subtitle: { 
-        fontSize: 13, 
+    subtitulo: { 
+        fontSize: 12, 
         fontWeight: '800', 
         color: '#3d2f49', 
         textAlign: 'center', 
