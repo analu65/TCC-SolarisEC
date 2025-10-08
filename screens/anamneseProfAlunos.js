@@ -1,11 +1,12 @@
+//aqui vai a tela do anamnese com os alunos
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import CardAnamnese from "../components/CardAnamneseAluno";
+import CardProfesssorAluno from "../components/CardAnamneseProfessor";
 import { auth } from "../controller/controller";
 import { onAuthStateChanged } from 'firebase/auth';
 import { useState, useEffect } from 'react';
 
-export default function AnamneseProfessor() {
+export default function AnamneseProfalunos() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -45,7 +46,7 @@ export default function AnamneseProfessor() {
         style={styles.conteudocard} 
         contentContainerStyle={styles.conteudocontainer}
       >
-        <CardAnamnese userId={user.uid} />
+        <CardProfesssorAluno userId={user.uid} />
       </ScrollView>
     </View>
   );

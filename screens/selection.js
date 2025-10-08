@@ -1,6 +1,7 @@
 import { StyleSheet, View, Button, ImageBackground, Text, Animated, TouchableOpacity } from "react-native";
 import React from 'react';
 
+
 export default function Selection({navigation}){
     return(
         <View style={styles.container}>
@@ -14,7 +15,7 @@ export default function Selection({navigation}){
                 <View style={styles.botoescircocontainer}>
                     
                     {/* botao de login */}
-                    <View style={[styles.buttonsignup, styles.loginbotaocontainer]}>
+                    <View style={styles.loginbotaocontainer}>
                         <TouchableOpacity 
                             style={styles.botaologin}
                             onPress={() => navigation.navigate('Login')}
@@ -29,7 +30,7 @@ export default function Selection({navigation}){
                         onPress={() => navigation.navigate('SignUp')}
                         activeOpacity={0.8} //opacidade quando ele ta ativo, quando aperta o botão
                     >
-                        <Text style={styles.signupbotaotexto}>Quero me cadastrar</Text>
+                        <Text style={styles.registerButtonText}>Quero me cadastrar</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
     },
     
 
-    loginbotao: {
+    botaologin: {
         backgroundColor: '#dd6b70',
         paddingVertical: 16,
         paddingHorizontal: 25,
@@ -127,7 +128,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     
-    signupbotaotexto: {
+    registerButtonText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: '700',

@@ -16,6 +16,7 @@ import SignUp from './screens/SignUp';
 import Login from './screens/Login';
 import EmailComposerScreen from './screens/emailComposerScreen';
 import cadastroTurmas from './screens/cadastroTurmas';
+import AnamneseProfalunos from './screens/anamneseProfAlunos';
 
 // Bottom Tab para Professor
 function BottomTabProfessor() {
@@ -44,7 +45,7 @@ function BottomTabProfessor() {
         component={EmailComposerScreen} 
         options={{
           tabBarIcon: () => (<MaterialCommunityIcons name="email" size={20} color="#dd6a71" />), 
-          headerShown: false
+          headerShown: ''
         }}
       />
     </BottomTab.Navigator>
@@ -77,7 +78,7 @@ function BottomTabAluno() {
         component={Avisos} 
         options={{
           tabBarIcon: () => (<MaterialCommunityIcons name="bell" size={20} color="#dd6a71" />), 
-          headerShown: false
+          headerShown: ''
         }}
       />
     </BottomTab.Navigator>
@@ -96,6 +97,7 @@ function DrawerProfessor() {
       <Drawer.Screen name='Turmas' component={Turmas} />
       <Drawer.Screen name='CadastroTurmas' component={cadastroTurmas} />
       <Drawer.Screen name='Anamnese' component={AnamneseProfessor}/>
+      <Drawer.Screen name='Anamneseprofessoraluno' component={AnamneseProfalunos}/>
     </Drawer.Navigator>
   );
 }
@@ -116,7 +118,7 @@ function DrawerAluno() {
 
 export default function App() {
   const Stack = createStackNavigator();
-  
+
   return (
     <NavigationContainer>
       <StatusBar style="auto" />
@@ -124,12 +126,10 @@ export default function App() {
         screenOptions={{
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
           headerStyle: {
-            backgroundColor: '#F7EBE6',
+            backgroundColor: '#FAF1ED',
           },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
+          headerTitle: '',
+          headerTintColor: '#3d2f49'
         }}
       >
         <Stack.Screen 
@@ -142,7 +142,6 @@ export default function App() {
           component={Login} 
           options={{ 
             title: 'Login',
-            headerLeft: () => null, 
           }}
         />
         <Stack.Screen 

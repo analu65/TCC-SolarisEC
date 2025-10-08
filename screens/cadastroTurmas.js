@@ -14,8 +14,8 @@ export default function CadastroTurmas({ navigation }) { //todos os itens para o
     const [startTime, setStartTime] = useState('');
     const [professor, setProfessor] = useState('');
     const [alunos, setAlunos] = useState([]);
-    const [professoresList, setProfessoresList] = useState([]);
-    const [alunosSelecionados, setAlunosSelecionados] = useState([]);
+    const [professoresList, setProfessoresList] = useState([]); //lista dos professores do picker
+    const [alunosSelecionados, setAlunosSelecionados] = useState([]); //alunos selecionados do scrollview
 
     useEffect(() => {
         carregarUsuarios();
@@ -184,7 +184,7 @@ export default function CadastroTurmas({ navigation }) { //todos os itens para o
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAF5ED',
+        backgroundColor: '#FAF1ED',
     },
     webContainer: {
         height: '100vh',
@@ -194,26 +194,26 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 30,
         paddingHorizontal: 20,
-        backgroundColor: '#FAF5ED',
+        backgroundColor: '#FAF1ED',
         minHeight: Platform.OS === 'web' ? '100vh' : undefined,
     },
     titulo: { 
         fontSize: 22,
-        fontWeight: '800', 
+        fontWeight: '700', 
         color: '#3d2f49', 
         textAlign: 'center',
         marginBottom: 10 
     },
     subtitulo: { 
         fontSize: 12, 
-        fontWeight: '800', 
+        fontWeight: '600', 
         color: '#3d2f49', 
         textAlign: 'center', 
         marginTop: 6,
     },
     sectionTitle: {
         fontSize: 16,
-        fontWeight: '800',
+        fontWeight: '700',
         color: '#3d2f49',
         marginTop: 30,
         marginBottom: 10,

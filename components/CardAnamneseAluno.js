@@ -55,7 +55,7 @@ export default function CardAnamnese({ userId }) {
     <View style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.nome}>{dados.nome || 'Usuário'}</Text>
-        <Text style={styles.tipoSanguineo}>{dados.tiposanguineo || "Tipo Sanguíneo não informado"}</Text>
+        <Text style={styles.tipoSanguineo}>{dados.tiposanguineo || ''}</Text>
       </View>
       
       <ScrollView style={styles.scrollContainer}>
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     margin: 10,
-    backgroundColor: '#FAF5ED',
+    backgroundColor: '#FAF1ED',
     borderRadius: 8,
     width: '100%',
     maxHeight: 500,

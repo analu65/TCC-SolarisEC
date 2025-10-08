@@ -163,7 +163,7 @@ export default function SignUp({navigation}){
             <div style={{
                 height: '100vh',
                 overflow: 'auto',
-                backgroundColor: '#FAF5ED'
+                backgroundColor: '#FAF1ED'
             }}>
                 {renderContent()}
             </div>
@@ -180,13 +180,13 @@ export default function SignUp({navigation}){
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAF5ED',
+        backgroundColor: '#FAF1ED',
     },
     content: {
         alignItems: 'center',
         paddingVertical: 30,
         paddingHorizontal: 20,
-        backgroundColor: '#FAF5ED',
+        backgroundColor: '#FAF1ED',
         minHeight: Platform.OS === 'web' ? '100vh' : undefined,
     },
     title: { 
