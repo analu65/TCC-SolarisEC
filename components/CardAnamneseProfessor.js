@@ -1,23 +1,26 @@
-import { View, Text, ScrollView, StyleSheet } from "react-native"; //pesquisa como que coloca do jeito do turmas pra terminar na proxima aula e comecar a barra de pesquisa e depois o email, deixa a estilizacao p depois do email, pesquisa como faz ele tb
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../controller/controller";
 
-export default function CardProfessorAluno(){
-    const [dadosAlunos, setDadosAlunos] = useState([]);
+export default function CardProfessorAluno() {
+    const [dadosAlunos, setDadosAlunos] = useState([]); //dados dos alunos pra mexer depois
     const [erro, setErro] = useState(null);
 
     useEffect(() => {
-        const loadData = async () => {
+        const loadData = async () => { //carregar os dados
             try {
                 setErro(null);
-                const querySnapshot = await getDocs(collection(db, 'users'));
+                const querySnapshot = await getDocs(collection(db, 'users')); //pega a colecao dos usuarios no banco users
                 
-                const todosAlunos = [];
+                const todosAlunos = []; //lista com todos os alunos
                 querySnapshot.forEach((doc) => {
+                    const data = doc.data();
                     todosAlunos.push({
                         id: doc.id,
-                        ...doc.data()
+                        ...data,
+                        //arruma a data q nao ta mostrando depois
+                        birthdate: formatarData(data.birthdate) //birthdate pega a funcao pra formatar a data
                     });
                 });
 
@@ -30,19 +33,40 @@ export default function CardProfessorAluno(){
         };
 
         loadData();
-    }, []);
+    }, []); //parametro que a mari ensinou na sala pra botar no useeffect pra quando quiser executar so uma vez
+    //se tivesse algo dentro como userid, essa funcao so seria feita se o userid udasse
 
-    if (erro) {
+    const formatarData = (timestamp) => { //formata a data de nascimento
+        if (!timestamp) return "Não informado"; //se nao tiver timestamp  :) retorna nao informado
+        
+        try {
+            //formatacao do timestamp que tava dando errado e eu nao sabia como rodar sem isso
+            if (timestamp.seconds && timestamp.nanoseconds) {
+                const date = new Date(timestamp.seconds * 1000); //armazena em javascript em milissegundos ao inves de segundos do firebase (pesquisar maia depois)
+                return date.toLocaleDateString('pt-BR'); //retorna string pt br
+            }
+            
+            //se ja for uma string
+            if (typeof timestamp === 'string' || timestamp instanceof Date) {
+                return new Date(timestamp).toLocaleDateString('pt-BR');
+            }
+            
+            return "Data inválida";
+        } catch (error) { //erro da em portugues se der errado
+            console.error("Erro ao formatar data:", error);
+            return "Data inválida"; //ver essa parte depois
+        }
+    };
+
+    if (erro) { //se der erro aparece esse card, naosei se precisa dele
         return (
-            <View style={[styles.card, styles.centerContent]}>
                 <Text style={styles.erroTexto}>{erro}</Text>
-            </View>
         );
     }
 
-    if (dadosAlunos.length === 0) {
+    if (dadosAlunos.length === 0) { //se tiver 0 alunos
         return (
-            <View style={[styles.card, styles.centerContent]}>
+            <View style={[styles.card, styles.conteudomeio]}>
                 <Text style={styles.erroTexto}>Nenhum aluno encontrado</Text>
             </View>
         );
@@ -50,95 +74,84 @@ export default function CardProfessorAluno(){
 
     return (
         <View style={styles.container}>
-            {dadosAlunos.map((aluno) => (
-                <View key={aluno.id} style={styles.card}>
-                    <View style={styles.header}>
-                        <Text style={styles.nome}>{aluno.nome || 'Usuário'}</Text>
-                        <Text style={styles.tipoSanguineo}>{aluno.tiposanguineo || ''}</Text>
+            <ScrollView style={styles.scrollContainer}>
+                {dadosAlunos.map((aluno) => ( //mapeia os dados dos alunos do dadosalunos e transforma na funcao aluno que pega o id de cada um pra fazer varios cards diferentes
+                    <View key={aluno.id} style={styles.card}>
+                        <View style={styles.header}>
+                            <Text style={styles.nome}>{aluno.nome || 'Usuário'}</Text>
+                            <Text style={styles.tipoSanguineo}>{aluno.tiposanguineo || ''}</Text>
+                        </View>
+                        
+                        <View style={styles.conteudo}>
+                            <View style={styles.secao}>
+                                <Text style={styles.secaoTitulo}>Informações Pessoais</Text>
+                                <Text style={styles.secaoTexto}>Data de Nascimento: {aluno.birthdate}</Text>
+                                <Text style={styles.secaoTexto}>CPF: {aluno.cpf || "Não informado"}</Text>
+                                <Text style={styles.secaoTexto}>Telefone: {aluno.telefone || "Não informado"}</Text>
+                                <Text style={styles.secaoTexto}>Email: {aluno.email || "Não informado"}</Text>
+                            </View>
+                            
+                            <View style={styles.secao}>
+                                <Text style={styles.secaoTitulo}>Endereço</Text>
+                                <Text style={styles.secaoTexto}>{aluno.rua || "Não informado"}, {aluno.numero || ""}</Text>
+                                <Text style={styles.secaoTexto}>Bairro: {aluno.bairro || "Não informado"}</Text>
+                                <Text style={styles.secaoTexto}>Cidade: {aluno.cidade || "Não informado"}</Text>
+                                <Text style={styles.secaoTexto}>CEP: {aluno.cep || "Não informado"}</Text>
+                            </View>
+                            
+                            <View style={styles.secao}>
+                                <Text style={styles.secaoTitulo}>Problemas de Saúde</Text>
+                                <Text style={styles.secaoTexto}>{aluno.probsaude || "Nenhum informado"}</Text>
+                            </View>
+                            
+                            <View style={styles.secao}>
+                                <Text style={styles.secaoTitulo}>Medicamentos em Uso</Text>
+                                <Text style={styles.secaoTexto}>
+                                    {aluno.medicamentos && aluno.medicamentos.length > 0 
+                                        ? aluno.medicamentos.join(', ') 
+                                        : "Nenhum informado"}
+                                </Text>
+                            </View>
+                            
+                            <View style={styles.secao}>
+                                <Text style={styles.secaoTitulo}>Alergias</Text>
+                                <Text style={styles.secaoTexto}>
+                                    {aluno.alergias && aluno.alergias.length > 0 
+                                        ? aluno.alergias.join(', ') 
+                                        : "Nenhuma informada"}
+                                </Text>
+                            </View>
+                            
+                            <View style={styles.secao}>
+                                <Text style={styles.secaoTitulo}>Saúde</Text>
+                                <Text style={styles.secaoTexto}>Problemas Posturais: {aluno.probposturais ? "Sim" : "Não"}</Text>
+                                <Text style={styles.secaoTexto}>Risco Cardíaco: {aluno.riscocardiaco ? "Sim" : "Não"}</Text>
+                                <Text style={styles.secaoTexto}>Dores Frequentes: {aluno.doresfrequentes ? "Sim" : "Não"}</Text>
+                            </View>
+                            
+                            <View style={styles.secao}>
+                                <Text style={styles.secaoTitulo}>Contato de Emergência</Text>
+                                <Text style={styles.secaoTexto}>Telefone: {aluno.contato || "Não informado"}</Text>
+                                <Text style={styles.secaoSubTexto}>Falar com: {aluno.falarcom || "Não especificado"}</Text>
+                            </View>
+                            
+                            <View style={styles.secao}>
+                                <Text style={styles.secaoTitulo}>Atividade Física</Text>
+                                <Text style={styles.secaoTexto}>
+                                    {aluno.pratica ? 'Pratica atividade física' : 'Não pratica atividade física'}
+                                </Text>
+                                {aluno.pratica && (
+                                    <>
+                                        <Text style={styles.secaoSubTexto}>Tipo: {aluno.tipoAtiv || "Não especificado"}</Text>
+                                        <Text style={styles.secaoSubTexto}>Frequência: {aluno.frequencia || "Não especificada"}</Text>
+                                        <Text style={styles.secaoSubTexto}>Tempo: {aluno.tempo || "Não especificado"}</Text>
+                                    </>
+                                )}
+                            </View>
+                        </View>
                     </View>
-                    
-                    <ScrollView style={styles.scrollContainer}>
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Informações Pessoais</Text>
-                            <Text style={styles.sectionContent}>Data de Nascimento: {aluno.birthdate || "Não informado"}</Text>
-                            <Text style={styles.sectionContent}>CPF: {aluno.cpf || "Não informado"}</Text>
-                            <Text style={styles.sectionContent}>Telefone: {aluno.telefone || "Não informado"}</Text>
-                        </View>
-                        
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Endereço</Text>
-                            <Text style={styles.sectionContent}>{aluno.rua || "Não informado"}, {aluno.numero || ""}</Text>
-                            <Text style={styles.sectionContent}>Bairro: {aluno.bairro || "Não informado"}</Text>
-                            <Text style={styles.sectionContent}>Cidade: {aluno.cidade || "Não informado"}</Text>
-                            <Text style={styles.sectionContent}>CEP: {aluno.cep || "Não informado"}</Text>
-                        </View>
-                        
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Problemas de Saúde</Text>
-                            <Text style={styles.sectionContent}>{aluno.probsaude || "Nenhum informado"}</Text>
-                        </View>
-                        
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Medicamentos em Uso</Text>
-                            <Text style={styles.sectionContent}>
-                                {aluno.medicamentos && aluno.medicamentos.length > 0 
-                                    ? aluno.medicamentos.join(', ') 
-                                    : "Nenhum informado"}
-                            </Text>
-                        </View>
-                        
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Alergias</Text>
-                            <Text style={styles.sectionContent}>
-                                {aluno.alergias && aluno.alergias.length > 0 
-                                    ? aluno.alergias.join(', ') 
-                                    : "Nenhuma informada"}
-                            </Text>
-                        </View>
-                        
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Problemas Posturais</Text>
-                            <Text style={styles.sectionContent}>
-                                {aluno.probposturais ? "Sim" : "Não"}
-                            </Text>
-                        </View>
-                        
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Risco Cardíaco</Text>
-                            <Text style={styles.sectionContent}>
-                                {aluno.riscocardiaco ? "Sim" : "Não"}
-                            </Text>
-                        </View>
-                        
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Dores Frequentes</Text>
-                            <Text style={styles.sectionContent}>
-                                {aluno.doresfrequentes ? "Sim" : "Não"}
-                            </Text>
-                        </View>
-                        
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Contato de Emergência</Text>
-                            <Text style={styles.sectionContent}>Telefone: {aluno.contato || "Não informado"}</Text>
-                            <Text style={styles.sectionSubContent}>Falar com: {aluno.falarcom || "Não especificado"}</Text>
-                        </View>
-                        
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Atividade Física</Text>
-                            <Text style={styles.sectionContent}>
-                                {aluno.pratica ? 'Pratica atividade física' : 'Não pratica atividade física'}
-                            </Text>
-                            {aluno.pratica && (
-                                <>
-                                    <Text style={styles.sectionSubContent}>Tipo: {aluno.tipoAtiv || "Não especificado"}</Text>
-                                    <Text style={styles.sectionSubContent}>Frequência: {aluno.frequencia || "Não especificada"}</Text>
-                                    <Text style={styles.sectionSubContent}>Tempo: {aluno.tempo || "Não especificado"}</Text>
-                                </>
-                            )}
-                        </View>
-                    </ScrollView>
-                </View>
-            ))}
+                ))}
+            </ScrollView>
         </View>
     );
 }
@@ -146,13 +159,17 @@ export default function CardProfessorAluno(){
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        width: '100%',
+        padding: 10,
+    },
+    scrollContainer: {
+        flex: 1,
     },
     card: {
         padding: 15,
         margin: 10,
         backgroundColor: '#f8f9fa',
         borderRadius: 8,
+        width: '95%',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
@@ -174,40 +191,39 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#666',
     },
-    scrollContainer: {
-        maxHeight: 400,
+    conteudo: {
+        marginTop: 5,
     },
-    section: {
+    secao: {
         marginBottom: 15,
         paddingBottom: 10,
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
     },
-    sectionTitle: {
+    secaoTitulo: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#3d2f49',
         marginBottom: 5,
     },
-    sectionContent: {
+    secaoTexto: {
         fontSize: 14,
-        color: '#333',
         marginBottom: 3,
+        color: '#333',
     },
-    sectionSubContent: {
+    secaoSubTexto: {
         fontSize: 13,
         color: '#666',
         marginLeft: 10,
         marginBottom: 2,
     },
-    centerContent: {
+    conteudomeio: {
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
     },
     erroTexto: {
-        color: '#e74c3c',
         fontSize: 16,
+        color: 'red',
         textAlign: 'center',
-    },
+    }
 });

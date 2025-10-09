@@ -1,7 +1,6 @@
-//aqui vai a tela do anamnese com os alunos
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import CardProfesssorAluno from "../components/CardAnamneseProfessor";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5'; //icone do anamnese
+import CardProfessorAluno from "../components/CardAnamneseProfessor"; //importa o card pra usar dentro do return
 import { auth } from "../controller/controller";
 import { onAuthStateChanged } from 'firebase/auth';
 import { useState, useEffect } from 'react';
@@ -46,7 +45,7 @@ export default function AnamneseProfalunos() {
         style={styles.conteudocard} 
         contentContainerStyle={styles.conteudocontainer}
       >
-        <CardProfesssorAluno userId={user.uid} />
+        <CardProfessorAluno />
       </ScrollView>
     </View>
   );
@@ -77,8 +76,6 @@ const styles = StyleSheet.create({
   conteudocontainer: {
     flexGrow: 1,
     padding: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   centerContent: {
     justifyContent: 'center',
