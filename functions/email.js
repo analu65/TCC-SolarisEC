@@ -1,87 +1,36 @@
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-const cors = require('cors')({origin: true});
+const nodemailer = require('nodemailer');
 const { google } = require('googleapis');
 
-// Inicializar Firebase Admin
-if (!admin.apps.length) {
-  admin.initializeApp();
-}
-
-const db = admin.firestore();
-
-// Configuração OAuth2 para Gmail
-const oauth2Client = new google.auth.OAuth2(
-  functions.config().gmail.client_id,
-  functions.config().gmail.client_secret,
-  functions.config().gmail.redirect_url
+const oAuth2Client = new google.auth.OAuth2(
+  process.env.CLIENT_ID,
+  process.env.CLIENT_SECRET,
+  process.env.REDIRECT_URI
 );
+oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
 
-// Definir refresh token
-oauth2Client.setCredentials({
-  refresh_token: functions.config().gmail.refresh_token
-});
 
-const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
-const USER_EMAIL = 'analuciacesario910@gmail.com'; 
+async function sendMail() {
+  try {
+    const accessToken = await oAuth2Client.getAccessToken();
 
-function createEmailRaw(to, subject, html, from) {
-  const email = [
-    `From: ${from}`,
-    `To: ${to}`,
-    'Content-Type: text/html; charset=utf-8',
-    'MIME-Version: 1.0',
-    `Subject: ${subject}`,
-    '',
-    html
-  ].join('\n');
+    const transport = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        type: 'OAuth2',
+        user: 'yours authorised email address',
+        clientId: CLIENT_ID,
+        clientSecret: CLEINT_SECRET,
+        refreshToken: REFRESH_TOKEN,
+        accessToken: accessToken,
+      },
+    });
 
-  return Buffer.from(email).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
-}
-
-exports.sendBulkEmails = functions.https.onRequest((req, res) => {
-  cors(req, res, async () => {
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Método não permitido.' });
-    }
-
-    const { assunto, mensagem, emails, imagemUrl } = req.body; // Adicionado imagemUrl
-
-    if (!assunto || !mensagem || !emails || !Array.isArray(emails)) {
-      return res.status(400).json({
-        error: 'Dados inválidos. Necessário: assunto, mensagem e lista de emails'
-      });
-    }
-
-    let sucessos = 0;
-    let erros = 0;
-    const resultados = [];
-
-    try {
-      // Verificar autenticação Gmail
-      try {
-        await oauth2Client.getAccessToken();
-      } catch (authError) {
-        console.error('Erro de autenticação Gmail:', authError);
-        return res.status(500).json({ 
-          error: 'Erro de autenticação Gmail. Verifique as configurações.' 
-        });
-      }
-
-      // Criar documento no Firestore
-      const emailRef = db.collection('emails_enviados').doc();
-      await emailRef.set({
-        assunto: assunto,
-        mensagem: mensagem,
-        imagemUrl: imagemUrl || null,
-        destinatarios: emails.map(e => e.email),
-        totalDestinatarios: emails.length,
-        dataEnvio: admin.firestore.FieldValue.serverTimestamp(),
-        status: 'enviando'
-      });
-
-      // Template HTML atualizado para incluir imagem
-      const htmlTemplate = `<!DOCTYPE html>
+    const mailOptions = {
+      from: 'SENDER NAME <yours authorised email address@gmail.com>',
+      to: 'to email address here',
+      subject: 'Hello from gmail using API',
+      text: 'Hello from gmail email using API',
+      html: `<!DOCTYPE html>
                       <html>
                       <head>
                           <meta charset="UTF-8">
@@ -157,112 +106,16 @@ exports.sendBulkEmails = functions.https.onRequest((req, res) => {
                               </div>
                           </div>
                       </body>
-                      </html>`;
+                      </html>`,
+    };
 
-      // Processar imagem no template
-      const imagemHtml = imagemUrl ? 
-        `<img src="${imagemUrl}" alt="Imagem do email" class="email-image" />` : '';
+    const result = await transport.sendMail(mailOptions);
+    return result;
+  } catch (error) {
+    return error;
+  }
+}
 
-      for (let i = 0; i < emails.length; i++) {
-        const { email, name } = emails[i];
-        
-        // Validar email
-        if (!email || !email.includes('@')) {
-          erros++;
-          resultados.push({
-            email: email || 'email inválido',
-            status: 'erro',
-            error: 'Email inválido',
-            timestamp: new Date().toISOString()
-          });
-          continue;
-        }
-
-        try {
-          const htmlPersonalizado = htmlTemplate
-            .replace('{{nome}}', name || 'Estudante')
-            .replace('{{mensagem}}', mensagem)
-            .replace('{{imagem}}', imagemHtml);
-
-          const raw = createEmailRaw(
-            email,
-            assunto,
-            htmlPersonalizado,
-            USER_EMAIL
-          );
-
-          await gmail.users.messages.send({
-            userId: 'me',
-            resource: { raw }
-          });
-
-          sucessos++;
-          resultados.push({ 
-            email, 
-            status: 'sucesso', 
-            timestamp: new Date().toISOString() 
-          });
-
-          console.log(`Email enviado com sucesso para: ${email}`);
-
-          // Delay entre envios para evitar rate limit
-          if (i < emails.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-
-        } catch (emailError) {
-          console.error(`Erro ao enviar email para ${email}:`, emailError);
-          erros++;
-          resultados.push({
-            email,
-            status: 'erro',
-            error: emailError.message || 'Erro desconhecido',
-            timestamp: new Date().toISOString()
-          });
-        }
-      }
-
-      // Atualizar documento no Firestore
-      await emailRef.update({
-        status: 'concluído',
-        sucessos: sucessos,
-        erros: erros,
-        resultados: resultados,
-        dataFinalizacao: admin.firestore.FieldValue.serverTimestamp()
-      });
-
-      console.log(`Processo concluído: ${sucessos} sucessos, ${erros} erros`);
-
-      return res.json({ 
-        success: true,
-        sucessos, 
-        erros, 
-        resultados,
-        emailId: emailRef.id,
-        message: `Emails processados: ${sucessos} sucessos, ${erros} erros`
-      });
-
-    } catch (err) {
-      console.error('Erro geral no envio de emails:', err);
-      
-      // Tentar atualizar o documento com erro se foi criado
-      try {
-        if (emailRef) {
-          await emailRef.update({
-            status: 'erro',
-            erro: err.message,
-            dataFinalizacao: admin.firestore.FieldValue.serverTimestamp()
-          });
-        }
-      } catch (updateError) {
-        console.error('Erro ao atualizar documento:', updateError);
-      }
-      
-      return res.status(500).json({ 
-        success: false,
-        error: 'Erro interno no servidor de emails.',
-        details: err.message 
-      });
-    }
-  });
-});
+sendMail()
+  .then((result) => console.log('Email sent...', result))
+  .catch((error) => console.log(error.message));

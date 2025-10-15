@@ -95,9 +95,9 @@ function DrawerProfessor() {
         options={{ title: 'Início' }}
       />
       <Drawer.Screen name='Turmas' component={Turmas} />
-      <Drawer.Screen name='CadastroTurmas' component={cadastroTurmas} />
-      <Drawer.Screen name='Anamnese' component={AnamneseProfessor}/>
-      <Drawer.Screen name='Anamneseprofessoraluno' component={AnamneseProfalunos}/>
+      <Drawer.Screen name='Cadastro de Turmas' component={cadastroTurmas} />
+      <Drawer.Screen name='Anamnese Professor' component={AnamneseProfessor}/>
+      <Drawer.Screen name='Ficha Anamnese Alunos' component={AnamneseProfalunos}/>
     </Drawer.Navigator>
   );
 }
@@ -112,6 +112,8 @@ function DrawerAluno() {
         options={{ title: 'Início' }}
       />
       <Drawer.Screen name='Anamnese' component={AnamneseAluno}/>
+      <Drawer.Screen name='Turmas' component={Turmas} />
+
     </Drawer.Navigator>
   );
 }
