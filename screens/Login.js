@@ -5,14 +5,14 @@ import { useState } from "react";
 import { getDoc, doc, collection, query, where, getDocs } from "firebase/firestore";
 
 export default function Login({navigation}){
-    const[email,setEmail]=useState('');const[senha,setSenha]=useState('');const[loading,setLoading]=useState(false);
+    const[email,setEmail]=useState(''); //consts do codigo da mariane
+    const[senha,setSenha]=useState('');
     
     const verificaUser=async()=>{
-        setLoading(true);
         try{
             const userCredential=await signInWithEmailAndPassword(auth,email,senha);
-            const uid=userCredential.user.uid;
-            const userDoc=await getDoc(doc(db,"users",uid));
+            const uid=userCredential.user.uid; //pega o uid
+            const userDoc=await getDoc(doc(db,"users",uid)); //pega o users
             
             if(userDoc.exists()){
                 const tipoUsuario=userDoc.data().tipo;
@@ -34,18 +34,16 @@ export default function Login({navigation}){
             }
         }catch(error){
             alert('Erro: '+error.message);
-        }finally{
-            setLoading(false);
         }
-    }
+    } 
 
     return(
         <View style={styles.container}>
             <Text style={styles.title}>Faça Login</Text>
             <TextInput style={styles.input} placeholder="Digite seu email" keyboardType="email-address" value={email} onChangeText={setEmail} autoCapitalize="none"/>
             <TextInput style={styles.input} placeholder="Digite sua senha" secureTextEntry={true} value={senha} onChangeText={setSenha}/>
-            <TouchableOpacity style={[styles.botao,loading&&styles.botaoDisabled]} onPress={verificaUser} disabled={loading}>
-                <Text style={styles.botaoTexto}>{loading?'Entrando...':'Entrar'}</Text>
+            <TouchableOpacity style={styles.botao} onPress={verificaUser}>
+                <Text style={styles.botaoTexto}>Entrar</Text>
             </TouchableOpacity>
         </View>
     );
@@ -86,9 +84,6 @@ const styles=StyleSheet.create({
         marginTop:40,
         justifyContent:'center',
         alignItems:'center'
-    },
-    botaoDisabled:{
-        backgroundColor:'#8a7b94'
     },
     botaoTexto:{
         color:'#fff',

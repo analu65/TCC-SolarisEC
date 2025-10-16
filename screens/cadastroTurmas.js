@@ -24,7 +24,7 @@ export default function CadastroTurmas({ navigation }) { //todos os itens para o
     const carregarUsuarios = async () => {
         try {
             const professoresQuery = query(collection(db, "users"), where("tipo", "==", "professor")); //users onde o tipo é professor
-            const professoresSnapshot = await getDocs(professoresQuery); //pega o banco de dados
+            const professoresSnapshot = await getDocs(professoresQuery); //pega os dados do banco de cima
             const professoresList = professoresSnapshot.docs.map(doc => ({ //snapshot é pra assegurar que nao vai ficar diferente depois
                 id: doc.id,
                 ...doc.data()
@@ -184,7 +184,7 @@ export default function CadastroTurmas({ navigation }) { //todos os itens para o
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAF1ED',
+        backgroundColor: '#FCF9F7',
     },
     webContainer: {
         height: '100vh',
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 30,
         paddingHorizontal: 20,
-        backgroundColor: '#FAF1ED',
+        backgroundColor: '#FCF9F7',
         minHeight: Platform.OS === 'web' ? '100vh' : undefined,
     },
     titulo: { 
@@ -235,6 +235,7 @@ const styles = StyleSheet.create({
         maxWidth: 400,
         height: 45, 
         borderColor: '#ccc', 
+        borderWidth: 1,
         borderRadius: 11, 
         backgroundColor: '#fff', 
         marginTop: 10, 

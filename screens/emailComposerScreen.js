@@ -162,10 +162,6 @@ const EmailComposerScreen = () => {
             <Ionicons name="people-outline" size={20} color="#666" />
             <Text style={styles.infoText}>{totalEmails} destinatários</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Ionicons name="checkmark-circle-outline" size={20} color="#4CAF50" />
-            <Text style={styles.infoText}>Pronto para enviar</Text>
-          </View>
         </View>
 
         <View style={styles.inputContainer}>
@@ -194,7 +190,6 @@ const EmailComposerScreen = () => {
           <Text style={styles.charcontador}>{mensagem.length}/1000</Text>
         </View>
         
-        {/* Botão Enviar */}
         <View style={styles.botaocontainer}>
           <TouchableOpacity 
             style={[styles.botaoenviar, enviando && styles.botaoenviardesativado]}
@@ -215,21 +210,6 @@ const EmailComposerScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Preview de destinatários */}
-        <View style={styles.emailPreview}>
-          <Text style={styles.previewTitle}>Lista de destinatários:</Text>
-          {usuarios.slice(0, 3).map((user, index) => (
-            <View key={user.id} style={styles.emailItem}>
-              <Ionicons name="person-outline" size={16} color="#666" />
-              <Text style={styles.emailText}>{user.name} - {user.email}</Text>
-            </View>
-          ))}
-          {usuarios.length > 3 && (
-            <Text style={styles.moreEmails}>
-              ... e mais {usuarios.length - 3} pessoas
-            </Text>
-          )}
-        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -238,7 +218,7 @@ const EmailComposerScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAF5ED',
+    backgroundColor: '#FCF9F7',
   },
   scrollView: {
     flex: 1,
@@ -271,10 +251,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   infoText: {
     marginLeft: 8,

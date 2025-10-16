@@ -42,11 +42,11 @@ export default function Selection({navigation}){
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAF5ED', 
+        backgroundColor: '#FCF9F7', 
         justifyContent: 'center', 
         alignItems: 'center',
     }, 
-    imgbackground: { //guarda p depois botar a image
+    imgbackground: { //guarda p depois botar a image sla
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',

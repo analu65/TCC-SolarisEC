@@ -6,7 +6,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { useState, useEffect } from 'react';
 
 export default function AnamneseProfalunos() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null); //faz o mesmo que o outro
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,13 +18,6 @@ export default function AnamneseProfalunos() {
     return unsubscribe;
   }, []);
 
-  if (loading) {
-    return (
-      <View style={[styles.container, styles.centerContent]}>
-        <Text>Carregando...</Text>
-      </View>
-    );
-  }
 
   if (!user) {
     return (

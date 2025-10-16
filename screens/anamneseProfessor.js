@@ -18,14 +18,6 @@ export default function AnamneseProfessor() {
     return unsubscribe;
   }, []);
 
-  if (loading) {
-    return (
-      <View style={[styles.container, styles.centerContent]}>
-        <Text>Carregando...</Text>
-      </View>
-    );
-  }
-
   if (!user) {
     return (
       <View style={[styles.container, styles.centerContent]}>
