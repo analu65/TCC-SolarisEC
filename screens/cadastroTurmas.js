@@ -100,13 +100,36 @@ export default function CadastroTurmas({ navigation }) { //todos os itens para o
             />
                 
             <Text style={styles.label}>Professor responsável:</Text>
-            <Picker selectedValue={professor} onValueChange={setProfessor} style={styles.picker}>
+                <View style={{
+                width: '90%',
+                maxWidth: 400,
+                height: 45,
+                borderWidth: 1,
+                borderColor: '#ccc',
+                borderRadius: 12,
+                overflow: 'hidden',
+                justifyContent: 'center',
+                backgroundColor: '#fff',
+                marginTop: 10
+                }}>
+                <Picker
+                selectedValue={professor}
+                onValueChange={setProfessor}
+                style={{
+                    width: '100%',
+                    color: '#616161',
+                }}
+                itemStyle={{ fontSize: 12 }} // diminui a fonte dos itens no iOS
+                >
                 <Picker.Item label="Selecione um professor" value="" />
-                    {professoresList.map(prof => ( //mapeia os professores para selecionar 
-                <Picker.Item key={prof.id} label={prof.nome} value={prof.id} /> /*seleciona o ID e nome do professor, 
-                prof eh a funcao que cria pra pegar o id e nome do professoreslist*/
-                    ))}
-            </Picker>
+                {professoresList.map(prof => (
+                    <Picker.Item key={prof.id} label={prof.nome} value={prof.nome} />
+                ))}
+                </Picker>
+
+
+
+                </View>
 
                 <TextInput 
                     style={styles.input} 
@@ -167,7 +190,7 @@ export default function CadastroTurmas({ navigation }) { //todos os itens para o
     if (Platform.OS === 'web') {
         return (
             <View style={styles.webContainer}>
-                <ScrollView style={styles.container}>
+                <ScrollView keyboardShouldPersistTaps="handled" style={styles.container}>
                     {renderContent()}
                 </ScrollView>
             </View>
@@ -242,17 +265,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10, 
         fontSize: 16, 
         color: '#616161',
-    },
-    picker: { //picker
-        width: '90%',
-        maxWidth: 400,
-        height: 45, 
-        marginTop: 10, 
-        backgroundColor: '#fff', 
-        borderRadius: 12, 
-        borderWidth: 1, 
-        borderColor: '#ccc', 
-        color: '#616161'
     },
     timeContainer: {
         flexDirection: Platform.OS === 'web' ? 'row' : 'column',

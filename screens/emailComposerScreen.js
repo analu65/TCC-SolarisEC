@@ -12,10 +12,10 @@ const EmailComposerScreen = () => {
   const [totalEmails, setTotalEmails] = useState(0); //total de emails
 
   useEffect(() => {
-    buscarEmailsDoFirebase(); //const para buscar os emails do firebase
+    BuscarEmailsDoFirebase(); //const para buscar os emails do firebase
   }, []);
 
-  const buscarEmailsDoFirebase = async () => {
+  const BuscarEmailsDoFirebase = async () => {
     try {
       const usersRef = collection(db, 'users'); //pega os usuarios do banco db do users
       const snapshot = await getDocs(usersRef); //pega os dados do userref em cima

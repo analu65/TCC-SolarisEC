@@ -32,7 +32,7 @@ export default function SignUp({navigation}){
     const[tipoativ,setTipoativ] = useState('');
     const[tempo, setTempo] = useState('');
 
-    const cadastrar = async () => {
+    const Cadastrar = async () => {
         if (!nome || !telefone || !email || !senha || !cpf) {
             alert("Por favor, preencha todos os campos!");
             return;
@@ -85,7 +85,7 @@ export default function SignUp({navigation}){
         }
     };
 
-    const formatarData = (text) => {
+    const FormatarData = (text) => {
         let cleaned = text.replace(/\D/g, '');
         if (cleaned.length <= 2) return cleaned;
         if (cleaned.length <= 4) return cleaned.substring(0, 2) + '/' + cleaned.substring(2);
@@ -93,13 +93,13 @@ export default function SignUp({navigation}){
     };
 
     // Conteúdo do formulário
-    const renderContent = () => (
+    const RenderContent = () => (
         <View style={styles.content}>
             <Text style={styles.title}>É novo? Faça seu cadastro</Text>
             <Text style={styles.subtitle}>Preencha um formulário para realizar a inscrição</Text>
 
             <Text style={styles.descriptionItems}>É aluno ou professor?</Text>
-            <Picker selectedValue={tipo} onValueChange={setTipo} style={styles.picker}>
+            <Picker selectedValue={tipo} onValueChange={setTipo} style={{width: '100%',color: '#616161',}} itemStyle={{ fontSize: 12 }}>
                 <Picker.Item label="Aluno" value="aluno" />
                 <Picker.Item label="Professor" value="professor" />
             </Picker>
@@ -109,7 +109,7 @@ export default function SignUp({navigation}){
             <TextInput style={styles.input} placeholder="Nome completo" value={nome} onChangeText={setNome} autoCapitalize="words"/>
             <TextInput style={styles.input} placeholder="Telefone" value={telefone} onChangeText={setTelefone} keyboardType="phone-pad"/>
             <TextInput style={styles.input} placeholder="CPF" value={cpf} onChangeText={setCpf} keyboardType="numeric"/>
-            <TextInput style={styles.input} value={birthdate} placeholder="Data de Nascimento" onChangeText={(t)=>setBirthdate(formatarData(t))} keyboardType="numeric" maxLength={10}/>
+            <TextInput style={styles.input} value={birthdate} placeholder="Data de Nascimento" onChangeText={(t)=>setBirthdate(FormatarData(t))} keyboardType="numeric" maxLength={10}/>
 
             <Text style={styles.descriptionItems}>ENDEREÇO</Text>
             <TextInput style={styles.input} placeholder="CEP" value={cep} onChangeText={setCep} keyboardType="numeric"/>
@@ -152,29 +152,25 @@ export default function SignUp({navigation}){
                 </>
             )}
 
-            <TouchableOpacity style={styles.botao} onPress={cadastrar}>
+            <TouchableOpacity style={styles.botao} onPress={Cadastrar}>
                 <Text style={styles.botaoTexto}>Cadastrar</Text>
             </TouchableOpacity>
         </View>
     );
     
-    if (Platform.OS === 'web') {
-        return (
-            <div style={{
-                height: '100vh',
-                overflow: 'auto',
-                backgroundColor: '#FAF1ED'
-            }}>
-                {renderContent()}
-            </div>
-        );
-    }
-
-    return (
-        <ScrollView style={styles.container}>
-            {renderContent()}
-        </ScrollView>
-    );
+const Wrapper = ({ children }) => {
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: '#FAF1ED',
+        ...(Platform.OS === 'web' ? { height: '100vh', overflow: 'auto' } : {})
+      }}
+    >
+      {children}
+    </View>
+  );
+};
 }
 
 const styles = StyleSheet.create({
@@ -225,17 +221,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10, 
         fontSize: 16, 
         color: '#616161',
-    },
-    picker: { 
-        width: '90%',
-        maxWidth: 400,
-        height: 45, 
-        marginTop: 15, 
-        backgroundColor: '#fff', 
-        borderRadius: 12, 
-        borderWidth: 1, 
-        borderColor: '#ccc', 
-        color: '#616161'
     },
     botao: { 
         width: '90%',

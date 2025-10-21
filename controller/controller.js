@@ -2,7 +2,14 @@
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
-import { getAuth } from "firebase/auth";
+import { 
+  getAuth, 
+  initializeAuth, 
+  getReactNativePersistence, 
+  browserLocalPersistence 
+} from 'firebase/auth';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Platform } from 'react-native';
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 // Your web app's Firebase configuration
@@ -17,8 +24,18 @@ const firebaseConfig = {
   measurementId: "G-LDJ9D7F0MD"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+let auth;
+
+if (Platform.OS === 'web') {
+  auth = getAuth(app);
+  auth.setPersistence(browserLocalPersistence);
+} else {
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+}
+
+export { auth };
 export const db = getFirestore(app);
 export const storage = getStorage(app);

@@ -45,7 +45,7 @@ function BottomTabProfessor() {
         component={EmailComposerScreen} 
         options={{
           tabBarIcon: () => (<MaterialCommunityIcons name="email" size={20} color="#dd6a71" />), 
-          headerShown: ''
+          headerShown: false
         }}
       />
     </BottomTab.Navigator>
@@ -78,7 +78,7 @@ function BottomTabAluno() {
         component={Avisos} 
         options={{
           tabBarIcon: () => (<MaterialCommunityIcons name="bell" size={20} color="#dd6a71" />), 
-          headerShown: ''
+          headerShown: false
         }}
       />
     </BottomTab.Navigator>

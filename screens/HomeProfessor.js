@@ -1,4 +1,4 @@
-import { View, Text, Button } from "react-native-web";
+import { Text, View } from "react-native";
  export default function HomeProfessor() {
     return (
         <View>

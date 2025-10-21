@@ -8,7 +8,7 @@ export default function Login({navigation}){
     const[email,setEmail]=useState(''); //consts do codigo da mariane
     const[senha,setSenha]=useState('');
     
-    const verificaUser=async()=>{
+    const VerificaUser=async()=>{
         try{
             const userCredential=await signInWithEmailAndPassword(auth,email,senha);
             const uid=userCredential.user.uid; //pega o uid
@@ -17,15 +17,14 @@ export default function Login({navigation}){
             if(userDoc.exists()){
                 const tipoUsuario=userDoc.data().tipo;
                 if(tipoUsuario==="professor")navigation.navigate('HomeProfessor');
-                else if(tipoUsuario==="aluno")navigation.navigate('HomeAluno');
+                else if(tipoUsuario==="aluno")console.log('sem viajasar por agroa');
                 else alert('Tipo não reconhecido');
-                alert('Login sucesso.');
             }else{
                 const emailQuery=await getDocs(query(collection(db,"users"),where("email","==",email)));
                 if(!emailQuery.empty){
                     const tipoUsuario=emailQuery.docs[0].data().tipo;
                     if(tipoUsuario==="professor")navigation.navigate('HomeProfessor');
-                    else if(tipoUsuario==="aluno")navigation.navigate('HomeAluno');
+                    else if(tipoUsuario==="aluno")alert('sem viajasar por agroa');
                     else alert('Tipo não reconhecido');
                     alert('Login sucesso.');
                 }else{
@@ -42,7 +41,7 @@ export default function Login({navigation}){
             <Text style={styles.title}>Faça Login</Text>
             <TextInput style={styles.input} placeholder="Digite seu email" keyboardType="email-address" value={email} onChangeText={setEmail} autoCapitalize="none"/>
             <TextInput style={styles.input} placeholder="Digite sua senha" secureTextEntry={true} value={senha} onChangeText={setSenha}/>
-            <TouchableOpacity style={styles.botao} onPress={verificaUser}>
+            <TouchableOpacity style={styles.botao} onPress={VerificaUser}>
                 <Text style={styles.botaoTexto}>Entrar</Text>
             </TouchableOpacity>
         </View>

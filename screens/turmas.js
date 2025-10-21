@@ -7,7 +7,7 @@ export default function Turmas() { //continuar cadastro de turmas com base no ca
     const [erroTurma, setErroturma] = useState(''); //const de erro
 
     useEffect(() => { //usei esse codigo que foi como a mari ensinou nas aulas para os outros inclusive o anamnese professor que consulta os alunos
-        const loadData = async () => {
+        const LoadData = async () => {
             try {
                 setErroturma(null);
                 const querySnapshot = await getDocs(collection(db, 'classes')); //pega todos os itens com o collection
@@ -28,7 +28,7 @@ export default function Turmas() { //continuar cadastro de turmas com base no ca
             }
         };
 
-        loadData();
+        LoadData();
 
     }, []);
 
