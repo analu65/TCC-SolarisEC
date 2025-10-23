@@ -17,14 +17,14 @@ export default function Login({navigation}){
             if(userDoc.exists()){
                 const tipoUsuario=userDoc.data().tipo;
                 if(tipoUsuario==="professor")navigation.navigate('HomeProfessor');
-                else if(tipoUsuario==="aluno")console.log('sem viajasar por agroa');
+                else if(tipoUsuario==="aluno")navigation.navigate('HomeAluno');
                 else alert('Tipo não reconhecido');
             }else{
                 const emailQuery=await getDocs(query(collection(db,"users"),where("email","==",email)));
                 if(!emailQuery.empty){
                     const tipoUsuario=emailQuery.docs[0].data().tipo;
                     if(tipoUsuario==="professor")navigation.navigate('HomeProfessor');
-                    else if(tipoUsuario==="aluno")alert('sem viajasar por agroa');
+                    else if(tipoUsuario==="aluno")navigation.navigate('HomeAluno');
                     else alert('Tipo não reconhecido');
                     alert('Login sucesso.');
                 }else{
