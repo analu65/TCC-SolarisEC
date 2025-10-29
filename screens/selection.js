@@ -4,6 +4,10 @@ import React from 'react';
 export default function Selection({navigation}){
     return(
         <View style={styles.container}>
+                            <Image
+                style={styles.img}
+                source={require('../assets/logosolaris.jpeg')}
+            />
             <Text style={styles.titulo}> Bem-vindo! </Text>
 
             {/* container dos botoes */}
@@ -35,13 +39,8 @@ export default function Selection({navigation}){
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FCF9F7', 
+        backgroundColor: '#efe1d4', 
         justifyContent: 'center', 
-        alignItems: 'center',
-    }, 
-    imgbackground: { //guarda p depois botar a image sla
-        flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
     }, 
     buttonsignup: {
@@ -49,10 +48,9 @@ const styles = StyleSheet.create({
 
     titulo: {
         fontSize: 24,
-        fontWeight: '800',
+        fontWeight: '600',
         color: '#3d2f49',
         marginBottom: 20, 
-        marginTop: 100, 
         textAlign: 'center',
         textShadowColor: 'rgba(61, 47, 73, 0.3)',
         textShadowOffset: { width: 2, height: 2 },
@@ -62,7 +60,7 @@ const styles = StyleSheet.create({
     botoescircocontainer: {
         alignItems: 'center',
         width: '85%',
-        marginBottom: 20,
+        marginBottom: 70,
     },
 
     loginbotaocontainer: {
@@ -122,20 +120,10 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         textAlign: 'center',
     },
-    
-    starsContainer: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        pointerEvents: 'none',
-    },
-    
-    star: {
-        position: 'absolute',
-        fontSize: 20,
-        textShadowColor: 'rgba(0,0,0,0.3)',
-        textShadowOffset: { width: 1, height: 1 },
-    },
+    img: {
+        height: 170,
+        width: 170,
+        borderRadius: 110,
+        marginBottom: 20
+    }
 });

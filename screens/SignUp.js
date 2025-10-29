@@ -185,14 +185,14 @@ const styles = StyleSheet.create({
     },
     title: { 
         fontSize:22,
-        fontWeight: '800', 
+        fontWeight: '700', 
         color: '#3d2f49', 
         textAlign: 'center',
         marginBottom: 10 
     },
     subtitle: { 
         fontSize: 13, 
-        fontWeight: '800', 
+        fontWeight: '600', 
         color: '#3d2f49', 
         textAlign: 'center', 
         marginTop: 6,

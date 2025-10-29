@@ -57,7 +57,7 @@ const styles=StyleSheet.create({
     },
     title:{
         fontSize:22,
-        fontWeight:'800',
+        fontWeight:'620',
         color:'#3d2f49',
         textAlign:'center',
         textShadowOffset:{width:2,height:2},
