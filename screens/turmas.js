@@ -1,19 +1,33 @@
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useState, useEffect } from "react";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where, deleteDoc, doc } from "firebase/firestore";
 import { db } from "../controller/controller";
-export default function Turmas() { //continuar cadastro de turmas com base no cardanamnese
-    const [dadosTurmas, setDadosturmas] = useState([]); //lista do dados das turmas
-    const [erroTurma, setErroturma] = useState(''); //const de erro
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
-    useEffect(() => { //usei esse codigo que foi como a mari ensinou nas aulas para os outros inclusive o anamnese professor que consulta os alunos
+export default function Turmas() {
+    const [dadosTurmas, setDadosturmas] = useState([]);
+    const [erroTurma, setErroturma] = useState('');
+    const [professores, setProfessores] = useState({});
+
+    useEffect(() => {
         const LoadData = async () => {
             try {
                 setErroturma(null);
-                const querySnapshot = await getDocs(collection(db, 'classes')); //pega todos os itens com o collection
                 
-                const todasTurmas = []; //lista com as turmas
-                querySnapshot.forEach((doc) => { //para cada
+                const professoresQuery = query(collection(db, "users"), where("tipo", "==", "professor"));
+                const professoresSnapshot = await getDocs(professoresQuery);
+                
+                const professoresMap = {};
+                professoresSnapshot.forEach((doc) => {
+                    professoresMap[doc.id] = doc.data().nome; 
+                });
+                
+                setProfessores(professoresMap);
+
+                const turmasSnapshot = await getDocs(collection(db, 'classes'));
+                const todasTurmas = [];
+                
+                turmasSnapshot.forEach((doc) => {
                     todasTurmas.push({
                         id: doc.id,
                         ...doc.data()
@@ -22,16 +36,40 @@ export default function Turmas() { //continuar cadastro de turmas com base no ca
 
                 setDadosturmas(todasTurmas);
 
-            } catch (error) { //mensagem de erro
+            } catch (error) {
                 setErroturma("Erro ao carregar turmas");
                 console.error("Erro:", error);
             }
         };
 
         LoadData();
-
     }, []);
 
+const deletarTurma = async (turmaId, turmaNome) => {
+    Alert.alert(
+        "Confirmar exclusão",
+        `Tem certeza que deseja excluir a turma "${turmaNome}"?`,
+        [
+            {
+                text: "Cancelar",
+                style: "cancel"
+            },
+            {
+                text: "Excluir",
+                style: "destructive",
+                onPress: async () => {
+                    try {
+                        await deleteDoc(doc(db, "classes", turmaId));
+                        setDadosturmas(dadosTurmas.filter(turma => turma.id !== turmaId));
+                    } catch (error) {
+                        console.error("Erro ao deletar turma:", error);
+                        Alert.alert("Erro", "Não foi possível excluir a turma.");
+                    }
+                }
+            }
+        ]
+    );
+};
     if (erroTurma) {
         return (
             <View style={[styles.card, styles.centerContent]}>
@@ -48,28 +86,35 @@ export default function Turmas() { //continuar cadastro de turmas com base no ca
         );
     }
 
- 
     return(
-        <View style = {styles.container}>
-        <ScrollView style={styles.scrollContainer}>
-        {dadosTurmas.map((turma) => ( //pega todas as turmas do banco ao inves de uma so, mapeando todas e transformando na funcao turma
-            <View key={turma.id} style={styles.card}>
-            <View style={styles.header}>
-                <Text style={styles.nome}>{turma.nome}</Text>
-            </View>
-            <View style={styles.secao}>
-                <Text style={styles.secaoDentro}>Professor responsável: </Text> {/*terminar professor*/}
-                <Text style={styles.secaoDentro}>Dia: {turma.dias}</Text>
-                <Text style={styles.secaoDentro}>Horário de Início: {turma.startTime}</Text>
-                <Text style={styles.secaoDentro}>Horário de término: {turma.finishTime}</Text>
-                <Text style={styles.secaoDentro}>Alunos:</Text> {/*terminar alunos no outro banco*/}
-            </View>
-        </View>
-        ))}
-        </ScrollView>
+        <View style={styles.container}>
+            <ScrollView style={styles.scrollContainer}>
+                {dadosTurmas.map((turma) => (
+                    <View key={turma.id} style={styles.card}>
+                        <View style={styles.informacoes}>
+                            <Text style={styles.nome}>{turma.nome}</Text>
+                            <Text style={styles.secaoDentro}>
+                                Professor: {turma.professor ? professores[turma.professor] || "Não encontrado" : "Não definido"}
+                            </Text>
+                            <Text style={styles.secaoDentro}>Dia: {turma.dias}</Text>
+                            <Text style={styles.secaoDentro}>Horário: {turma.startTime} - {turma.finishTime}</Text>
+                            <Text style={styles.secaoDentro}>
+                                Alunos: {turma.alunos && turma.alunos.length > 0 ? turma.alunos.length + " aluno(s)" : "Nenhum aluno"}
+                            </Text>
+                        </View>
+                        <TouchableOpacity
+                            style={styles.icone}
+                            onPress={() => deletarTurma(turma.id, turma.nome)}
+                            activeOpacity={0.7}
+                        >
+                            <MaterialCommunityIcons name="minus-circle-outline" size={24} color="#535353" />
+                        </TouchableOpacity> 
+                    </View>
+                ))}
+            </ScrollView>
         </View>
     );
-} 
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -81,6 +126,9 @@ const styles = StyleSheet.create({
     },
     card: {
         padding: 15,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
         margin: 10,
         backgroundColor: '#f8f9fa',
         borderRadius: 8,
@@ -91,21 +139,25 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
-    header: {
-        marginBottom: 10,
+    informacoes: {
+        flex: 1,
     },
     nome: {
         fontSize: 18,
         fontWeight: 'bold',
         color: '#3d2f49',
-    },
-    secao: {
-        marginTop: 5,
+        marginBottom: 8,
     },
     secaoDentro: {
         fontSize: 14,
-        marginBottom: 5,
+        marginBottom: 4,
         color: '#333',
+    },
+    icone: {
+        marginLeft: 10,
+        padding: 10,
+        backgroundColor: '#f0f0f0',
+        borderRadius: 5,
     },
     centerContent: {
         flex: 1,
