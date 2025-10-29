@@ -1,27 +1,37 @@
-import { useState, useEffect } from "react";
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from "react-native";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../controller/controller";
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, TextInput, Button, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../controller/controller';
 
-const EmailComposerScreen = () => {
-  const [assunto, setAssunto] = useState(''); //assunto, mensagem e enviando pra colocar embaixo depois na const de envio do email
-  const [mensagem, setMensagem] = useState('');
+export default function App() {
+  const [isAvailable, setIsAvailable] = useState(false);
+  const [recipients, setRecipients] = useState([]);
+  const [subject, setSubject] = useState('');
+  const [body, setBody] = useState('');
+  const [email, setEmail] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
-  const [totalEmails, setTotalEmails] = useState(0); //total de emails
+  const [totalEmails, setTotalEmails] = useState(0);
 
   useEffect(() => {
-    BuscarEmailsDoFirebase(); //const para buscar os emails do firebase
+    async function checkAvailability() {
+      const isMailAvailable = true; // Como estamos usando servidor próprio, sempre disponível
+      setIsAvailable(isMailAvailable);
+      BuscarEmailsDoFirebase();
+    }
+
+    checkAvailability();
   }, []);
 
   const BuscarEmailsDoFirebase = async () => {
     try {
-      const usersRef = collection(db, 'users'); //pega os usuarios do banco db do users
-      const snapshot = await getDocs(usersRef); //pega os dados do userref em cima
+      const usersRef = collection(db, 'users');
+      const snapshot = await getDocs(usersRef);
       const emailsList = [];
 
-      snapshot.forEach(doc => { //pega os dados e se tiver email puxa o email e o nome pra usar depois na telinha que mostra os emails
+      snapshot.forEach(doc => {
         const userData = doc.data();
         if (userData.email) {
           emailsList.push({
@@ -31,22 +41,56 @@ const EmailComposerScreen = () => {
           });
         }
       });
-      setUsuarios(emailsList); //o setusuarios pega a emailslist
+      setUsuarios(emailsList);
       setTotalEmails(emailsList.length);
+      // Preenche automaticamente os recipients com os emails do Firebase
+      setRecipients(emailsList.map(user => user.email));
     } catch (error) {
       console.error('Erro ao buscar emails', error);
       Alert.alert('Não foi possível carregar os emails dos usuários');
     }
   };
 
+  const addRecipient = () => {
+    if (!email || !email.includes('@')) {
+      Alert.alert('Email inválido');
+      return;
+    }
+
+    let newRecipients = [...recipients];
+    newRecipients.push(email);
+    setRecipients(newRecipients);
+    setEmail('');
+  };
+
+  const removeRecipient = (indexToRemove) => {
+    const newRecipients = recipients.filter((_, index) => index !== indexToRemove);
+    setRecipients(newRecipients);
+  };
+
+  const showRecipients = () => {
+    if (recipients.length === 0) {
+      return <Text style={styles.noRecipients}>Nenhum destinatário adicionado</Text>;
+    }
+
+    return recipients.map((recipient, index) => (
+      <View key={index} style={styles.recipientItem}>
+        <Text style={styles.recipientText}>{recipient}</Text>
+        <TouchableOpacity onPress={() => removeRecipient(index)}>
+          <Ionicons name="close-circle" size={20} color="#dd6b70" />
+        </TouchableOpacity>
+      </View>
+    ));
+  };
+
   const enviarEmails = async () => {
-    if (!assunto.trim() || !mensagem.trim()) {
+    if (!subject.trim() || !body.trim()) {
       Alert.alert('Preencha o assunto e a mensagem');
       return;
     }
     
-    if (usuarios.length === 0) {
-      Alert.alert('Nenhum email encontrado no banco de dados');
+    if (recipients.length === 0) {
+      Alert.alert('Nenhum destinatário selecionado');
       return;
     }
     
@@ -58,12 +102,16 @@ const EmailComposerScreen = () => {
     setEnviando(true);
     
     try {
-      let sucessos = 0; //conta os sucessos e os erros na hora de mandar
+      let sucessos = 0;
       let erros = 0;
 
-      // envia um email por vez
-      for (const usuario of usuarios) {
+      for (const recipient of recipients) {
         try {
+          const usuario = usuarios.find(user => user.email === recipient) || {
+            email: recipient,
+            name: 'Cliente'
+          };
+          
           const enviadoComSucesso = await enviarEmailIndividual(usuario);
           
           if (enviadoComSucesso) {
@@ -74,11 +122,11 @@ const EmailComposerScreen = () => {
             console.log(`Falha no envio para: ${usuario.email}`);
           }
           
-          await new Promise(resolve => setTimeout(resolve, 500)); // pequena pausa entre os emails para não sobrecarregar
+          await new Promise(resolve => setTimeout(resolve, 500));
           
         } catch (error) {
-          erros++; //adiciona um erro no contador de erros
-          console.log(`Erro para ${usuario.email}:`, error.message); //mostra se tiver erro e o usuario q deu erro
+          erros++;
+          console.log(`Erro para ${recipient}:`, error.message);
         }
       }
 
@@ -98,42 +146,56 @@ const EmailComposerScreen = () => {
 
   const enviarEmailIndividual = async (usuario) => {
     try {
-      console.log(`📤 Enviando para: ${usuario.email}`);
+      console.log(`Enviando para: ${usuario.email}`);
       
-      const response = await fetch('http://localhost:8081/', {
+      const response = await fetch('http://localhost:3001/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           to: usuario.email,
-          subject: assunto,
-          text: `Olá ${usuario.name},\n\n${mensagem}`,
+          subject: subject,
+          text: `Olá ${usuario.name},\n\n${body}`,
           html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-              <div style="background: linear-gradient(135deg, #dd6b70, #ff8a8e); padding: 30px; text-align: center; color: white; border-radius: 10px 10px 0 0;">
-                <h1 style="margin: 0;">📧 Solaris EC</h1>
-              </div>
-              <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <h2 style="color: #333;">${assunto}</h2>
-                <p><strong>Olá ${usuario.name}!</strong></p>
-                <div style="background-color: #f9f9f9; padding: 20px; border-left: 4px solid #dd6b70; margin: 20px 0; border-radius: 4px;">
-                  ${mensagem.replace(/\n/g, '<br>')}
-                </div>
-                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-                <p style="color: #666; font-size: 12px; text-align: center;">
-                  Este email foi enviado automaticamente pela Solaris Escola de Circo
-                </p>
-              </div>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg,rgb(255, 160, 165),rgb(255, 162, 166)); padding: 30px; text-align: center; color: white; border-radius: 10px 10px 0 0;">
+              <h1 style="margin: 0;">Solaris Escola de Circo</h1>
             </div>
-          `
+            <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+              <h2 style="color: #333;">${subject}</h2>
+              <p><strong>Olá ${usuario.name}!</strong></p>
+              
+              <div style="background-color: #f9f9f9; padding: 20px; border: 2px solid #dd6b70; margin: 20px 0; border-radius: 4px;">
+                ${body.replace(/\n/g, '<br>')}
+              </div>
+              
+              <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+            </div>
+          </div>
+        `
         })
       });
   
-      const data = await response.json();
+      // Verifica se a resposta é JSON
+      const contentType = response.headers.get('content-type');
+      let data;
+      
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        // Se não for JSON, tenta ler como texto para debug
+        const textResponse = await response.text();
+        console.log('Resposta não-JSON do servidor:', textResponse.substring(0, 200));
+        
+        // Considera sucesso se o status for 200-299
+        return response.ok;
+      }
+      
       console.log('Resposta do servidor:', data);
       
-      return data.success;
+      // Adapta para diferentes formatos de resposta
+      return data.success || data.status === 'success' || response.ok;
       
     } catch (error) {
       console.error(`❌ Erro ao enviar para ${usuario.email}:`, error);
@@ -141,8 +203,8 @@ const EmailComposerScreen = () => {
     }
   };
   const limparFormulario = () => {
-    setAssunto('');
-    setMensagem('');
+    setSubject('');
+    setBody('');
   };
 
   return (
@@ -159,8 +221,34 @@ const EmailComposerScreen = () => {
         {/* Card de informações */}
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
-            <Ionicons name="people-outline" size={20} color="#666" />
-            <Text style={styles.infoText}>{totalEmails} destinatários</Text>
+            <Ionicons name="mail-outline" size={20} color="#666" />
+            <Text style={styles.infoText}>{recipients.length} destinatários selecionados</Text>
+          </View>
+        </View>
+
+        {/* Adicionar destinatário manualmente */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Adicionar Destinatário</Text>
+          <View style={styles.addRecipientContainer}>
+            <TextInput
+              style={[styles.input, styles.recipientInput]}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Digite o email..."
+              placeholderTextColor="#999"
+              keyboardType="email-address"
+            />
+            <TouchableOpacity style={styles.addButton} onPress={addRecipient}>
+              <Ionicons name="add-circle" size={24} color="#dd6b70" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Lista de destinatários */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Destinatários</Text>
+          <View style={styles.recipientsList}>
+            {showRecipients()}
           </View>
         </View>
 
@@ -168,8 +256,8 @@ const EmailComposerScreen = () => {
           <Text style={styles.label}>Assunto</Text>
           <TextInput
             style={styles.input}
-            value={assunto}
-            onChangeText={setAssunto}
+            value={subject}
+            onChangeText={setSubject}
             placeholder="Digite o assunto do email..."
             placeholderTextColor="#999"
           />
@@ -179,41 +267,34 @@ const EmailComposerScreen = () => {
           <Text style={styles.label}>Mensagem</Text>
           <TextInput
             style={[styles.input, styles.messageInput]}
-            value={mensagem}
-            onChangeText={setMensagem}
+            value={body}
+            onChangeText={setBody}
             placeholder="Digite sua mensagem aqui..."
             placeholderTextColor="#999"
             multiline
             numberOfLines={8}
             textAlignVertical="top"
           />
-          <Text style={styles.charcontador}>{mensagem.length}/1000</Text>
+          <Text style={styles.charcontador}>{body.length}/1000</Text>
         </View>
         
         <View style={styles.botaocontainer}>
+        <View style={styles.botaocontainer}>
           <TouchableOpacity 
-            style={[styles.botaoenviar, enviando && styles.botaoenviardesativado]}
+            style={styles.botaoenviar}
             onPress={enviarEmails}
-            disabled={enviando}
           >
-            {enviando ? (
-              <>
-                <ActivityIndicator color="white" size="small" />
-                <Text style={styles.botaoenviartexto}>Enviando...</Text>
-              </>
-            ) : (
-              <>
-                <Ionicons name="send-outline" size={20} color="white" />
-                <Text style={styles.botaoenviartexto}>Enviar Emails</Text>
-              </>
-            )}
+            <Ionicons name="send-outline" size={20} color="white" />
+            <Text style={styles.botaoenviartexto}>Enviar Emails</Text>
           </TouchableOpacity>
         </View>
+        </View>
 
+        <StatusBar style="auto" />
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -242,15 +323,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     padding: 15,
     borderRadius: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   infoText: {
     marginLeft: 8,
@@ -284,6 +367,45 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 5,
   },
+  addRecipientContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  recipientInput: {
+    flex: 1,
+    marginRight: 10,
+  },
+  addButton: {
+    padding: 10,
+  },
+  recipientsList: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 10,
+    minHeight: 50,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  recipientItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  recipientText: {
+    fontSize: 14,
+    color: '#333',
+    flex: 1,
+  },
+  noRecipients: {
+    textAlign: 'center',
+    color: '#999',
+    fontStyle: 'italic',
+    padding: 10,
+  },
   botaocontainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -308,38 +430,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
-  emailPreview: {
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  previewTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 10,
-    color: '#333',
-  },
-  emailItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 5,
-  },
-  emailText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: '#666',
-  },
-  moreEmails: {
-    fontStyle: 'italic',
-    color: '#999',
-    marginTop: 5,
-    textAlign: 'center',
-  },
 });
-
-export default EmailComposerScreen;

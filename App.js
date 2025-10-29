@@ -7,8 +7,9 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import HomeProfessor from './screens/HomeProfessor';
 import HomeAluno from './screens/HomeAluno';
 import Avisos from './screens/Avisos';
+import CadastroTurmas from './screens/cadastroTurmas';
 import Turmas from './screens/turmas';
-import AnamneseAluno from './screens/anamnese';
+import AnamneseProfalunos from './screens/anamneseProfAlunos';
 import AnamneseProfessor from './screens/anamneseProfessor';
 import Selection from './screens/selection';
 import { StatusBar } from 'expo-status-bar';
@@ -16,7 +17,6 @@ import SignUp from './screens/SignUp';
 import Login from './screens/Login';
 import EmailComposerScreen from './screens/emailComposerScreen';
 import cadastroTurmas from './screens/cadastroTurmas';
-import AnamneseProfalunos from './screens/anamneseProfAlunos';
 
 // Bottom Tab para Professor
 function BottomTabProfessor() {
@@ -111,7 +111,7 @@ function DrawerAluno() {
         component={BottomTabAluno} 
         options={{ title: 'Início' }}
       />
-      <Drawer.Screen name='Anamnese' component={AnamneseAluno}/>
+      <Drawer.Screen name='Anamnese' component={AnamneseProfessor}/>
       <Drawer.Screen name='Turmas' component={Turmas} />
 
     </Drawer.Navigator>
@@ -170,6 +170,16 @@ export default function App() {
           name='Turmas' 
           component={Turmas} 
         />
+        <Stack.Screen 
+          name='AnamneseProfalunos' 
+          component={AnamneseProfalunos} 
+        />
+        <Stack.Screen 
+          name='CadastroTurmas' 
+          component={CadastroTurmas} 
+        />
+        
+        
       </Stack.Navigator>
     </NavigationContainer>
   );

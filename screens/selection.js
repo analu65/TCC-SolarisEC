@@ -1,40 +1,33 @@
-import { StyleSheet, View, Button, ImageBackground, Text, Animated, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Button, Image, Text, Animated, TouchableOpacity } from "react-native";
 import React from 'react';
-
 
 export default function Selection({navigation}){
     return(
         <View style={styles.container}>
-            {/*<ImageBackground source={require('../fotossolaris/begemelhor2.png')} style={styles.imgbackground}>*/}
+            <Text style={styles.titulo}> Bem-vindo! </Text>
+
+            {/* container dos botoes */}
+            <View style={styles.botoescircocontainer}>
                 
-
-                <Text style={styles.titulo}> Bem-vindo! </Text>
-
-
-                {/* container dos botoes */}
-                <View style={styles.botoescircocontainer}>
-                    
-                    {/* botao de login */}
-                    <View style={styles.loginbotaocontainer}>
-                        <TouchableOpacity 
-                            style={styles.botaologin}
-                            onPress={() => navigation.navigate('Login')}
-                            activeOpacity={0.8}
-                        >
-                            <Text style={styles.botaologintexto}>Já tenho cadastro</Text>
-                        </TouchableOpacity>
-                    </View>
-                    
+                {/* botao de login */}
+                <View style={styles.loginbotaocontainer}>
                     <TouchableOpacity 
-                        style={styles.circosignupbotao}
-                        onPress={() => navigation.navigate('SignUp')}
-                        activeOpacity={0.8} //opacidade quando ele ta ativo, quando aperta o botão
+                        style={styles.botaologin}
+                        onPress={() => navigation.navigate('Login')}
+                        activeOpacity={0.8}
                     >
-                        <Text style={styles.registerButtonText}>Quero me cadastrar</Text>
+                        <Text style={styles.botaologintexto}>Já tenho cadastro</Text>
                     </TouchableOpacity>
                 </View>
-
-            {/*</ImageBackground>*/}
+                
+                <TouchableOpacity 
+                    style={styles.circosignupbotao}
+                    onPress={() => navigation.navigate('SignUp')}
+                    activeOpacity={0.8} //opacidade quando ele ta ativo, quando aperta o botão
+                >
+                    <Text style={styles.registerButtonText}>Quero me cadastrar</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }
@@ -54,7 +47,6 @@ const styles = StyleSheet.create({
     buttonsignup: {
     },
 
-
     titulo: {
         fontSize: 24,
         fontWeight: '800',
@@ -66,8 +58,6 @@ const styles = StyleSheet.create({
         textShadowOffset: { width: 2, height: 2 },
         textShadowRadius: 4,
     },
-    
-
 
     botoescircocontainer: {
         alignItems: 'center',
@@ -75,13 +65,11 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
 
-
     loginbotaocontainer: {
         width: '100%',
         marginBottom: 15,
     },
     
-
     botaologin: {
         backgroundColor: '#dd6b70',
         paddingVertical: 16,
@@ -135,7 +123,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     
-    
     starsContainer: {
         position: 'absolute',
         top: 0,
@@ -151,5 +138,4 @@ const styles = StyleSheet.create({
         textShadowColor: 'rgba(0,0,0,0.3)',
         textShadowOffset: { width: 1, height: 1 },
     },
-    
 });
