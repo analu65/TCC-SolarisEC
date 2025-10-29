@@ -50,34 +50,34 @@ export default function SignUp({navigation}){
                 .map(item => item.trim())
                 .filter(item => item !== '');
             
-                const userDocRef = doc(db, "users", userCredential.user.uid);
-        
-                await setDoc(userDocRef, {
-                    nome: nome || '',
-                    telefone: telefone || '',
-                    email: email || '',
-                    cpf: cpf || '',
-                    tipo: tipo || 'aluno',
-                    birthdate: birthdate || '',
-                    cidade: cidade || '',
-                    cep: cep || '',
-                    bairro: bairro || '',
-                    rua: rua || '',
-                    numero: numero || '',
-                    tiposanguineo: tiposanguineo || '',
-                    probsaude: probsaude || '',
-                    alergias: alergiasArray,
-                    medicamentos: medicamentosArray,
-                    probposturais: Boolean(probposturais),
-                    riscocardiaco: Boolean(riscocardiaco),
-                    doresfrequentes: Boolean(doresfrequentes),
-                    contato: contatoemergencia || '',
-                    falarcom: falarcom || '',
-                    pratica: Boolean(praticaativ),
-                    tipoAtiv: tipoativ || '',
-                    frequencia: frequenciaativ || '',
-                    tempo: tempo || ''
-                });
+            const userDocRef = doc(db, "users", userCredential.user.uid);
+    
+            await setDoc(userDocRef, {
+                nome: nome || '',
+                telefone: telefone || '',
+                email: email || '',
+                cpf: cpf || '',
+                tipo: tipo || 'aluno',
+                birthdate: birthdate || '',
+                cidade: cidade || '',
+                cep: cep || '',
+                bairro: bairro || '',
+                rua: rua || '',
+                numero: numero || '',
+                tiposanguineo: tiposanguineo || '',
+                probsaude: probsaude || '',
+                alergias: alergiasArray,
+                medicamentos: medicamentosArray,
+                probposturais: Boolean(probposturais),
+                riscocardiaco: Boolean(riscocardiaco),
+                doresfrequentes: Boolean(doresfrequentes),
+                contato: contatoemergencia || '',
+                falarcom: falarcom || '',
+                pratica: Boolean(praticaativ),
+                tipoAtiv: tipoativ || '',
+                frequencia: frequenciaativ || '',
+                tempo: tempo || ''
+            });
             alert("Cadastro realizado com sucesso!");
             navigation.navigate('Login');
         } catch (error) {
@@ -92,85 +92,80 @@ export default function SignUp({navigation}){
         return cleaned.substring(0, 2) + '/' + cleaned.substring(2, 4) + '/' + cleaned.substring(4, 8);
     };
 
-    // Conteúdo do formulário
-    const RenderContent = () => (
-        <View style={styles.content}>
-            <Text style={styles.title}>É novo? Faça seu cadastro</Text>
-            <Text style={styles.subtitle}>Preencha um formulário para realizar a inscrição</Text>
+    return (
+        <View style={styles.container}>
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                <View style={styles.content}>
+                    <Text style={styles.title}>É novo? Faça seu cadastro</Text>
+                    <Text style={styles.subtitle}>Preencha um formulário para realizar a inscrição</Text>
 
-            <Text style={styles.descriptionItems}>É aluno ou professor?</Text>
-            <Picker selectedValue={tipo} onValueChange={setTipo} style={{width: '100%',color: '#616161',}} itemStyle={{ fontSize: 12 }}>
-                <Picker.Item label="Aluno" value="aluno" />
-                <Picker.Item label="Professor" value="professor" />
-            </Picker>
+                    <Text style={styles.descriptionItems}>É aluno ou professor?</Text>
+                    <View style={styles.pickerContainer}>
+                        <Picker 
+                            selectedValue={tipo} 
+                            onValueChange={setTipo} 
+                            style={styles.picker}
+                        >
+                            <Picker.Item label="Aluno" value="aluno" />
+                            <Picker.Item label="Professor" value="professor" />
+                        </Picker>
+                    </View>
 
-            <TextInput style={styles.input} placeholder="Digite seu E-mail" value={email} onChangeText={setEmail} autoCapitalize="none"/>
-            <TextInput style={styles.input} placeholder="Digite sua Senha" value={senha} onChangeText={setSenha} secureTextEntry/>
-            <TextInput style={styles.input} placeholder="Nome completo" value={nome} onChangeText={setNome} autoCapitalize="words"/>
-            <TextInput style={styles.input} placeholder="Telefone" value={telefone} onChangeText={setTelefone} keyboardType="phone-pad"/>
-            <TextInput style={styles.input} placeholder="CPF" value={cpf} onChangeText={setCpf} keyboardType="numeric"/>
-            <TextInput style={styles.input} value={birthdate} placeholder="Data de Nascimento" onChangeText={(t)=>setBirthdate(FormatarData(t))} keyboardType="numeric" maxLength={10}/>
+                    <TextInput style={styles.input} placeholder="Digite seu E-mail" value={email} onChangeText={setEmail} autoCapitalize="none"/>
+                    <TextInput style={styles.input} placeholder="Digite sua Senha" value={senha} onChangeText={setSenha} secureTextEntry/>
+                    <TextInput style={styles.input} placeholder="Nome completo" value={nome} onChangeText={setNome} autoCapitalize="words"/>
+                    <TextInput style={styles.input} placeholder="Telefone" value={telefone} onChangeText={setTelefone} keyboardType="phone-pad"/>
+                    <TextInput style={styles.input} placeholder="CPF" value={cpf} onChangeText={setCpf} keyboardType="numeric"/>
+                    <TextInput style={styles.input} value={birthdate} placeholder="Data de Nascimento" onChangeText={(t)=>setBirthdate(FormatarData(t))} keyboardType="numeric" maxLength={10}/>
 
-            <Text style={styles.descriptionItems}>ENDEREÇO</Text>
-            <TextInput style={styles.input} placeholder="CEP" value={cep} onChangeText={setCep} keyboardType="numeric"/>
-            <TextInput style={styles.input} placeholder="Cidade" value={cidade} onChangeText={setCidade}/>
-            <TextInput style={styles.input} placeholder="Bairro" value={bairro} onChangeText={setBairro}/>
-            <TextInput style={styles.input} placeholder="Rua" value={rua} onChangeText={setRua}/>
-            <TextInput style={styles.input} placeholder="Número" value={numero} onChangeText={setNumero}/>
+                    <Text style={styles.descriptionItems}>ENDEREÇO</Text>
+                    <TextInput style={styles.input} placeholder="CEP" value={cep} onChangeText={setCep} keyboardType="numeric"/>
+                    <TextInput style={styles.input} placeholder="Cidade" value={cidade} onChangeText={setCidade}/>
+                    <TextInput style={styles.input} placeholder="Bairro" value={bairro} onChangeText={setBairro}/>
+                    <TextInput style={styles.input} placeholder="Rua" value={rua} onChangeText={setRua}/>
+                    <TextInput style={styles.input} placeholder="Número" value={numero} onChangeText={setNumero}/>
 
-            <Text style={styles.titlemiddle}>ANAMNESE</Text>
-            <TextInput style = {styles.input} placeholder="Tipo Sanguíneo" value={tiposanguineo} onChangeText={setTiposanguineo}></TextInput>
-            <TextInput style={[styles.input, styles.textArea]} placeholder="Alergias (separadas por vírgula)" value={alergiasinput} onChangeText={setAlergiasinput} multiline/>
-            <TextInput style={[styles.input, styles.textArea]} placeholder="Medicamentos (separados por vírgula)" value={medicamentosinput} onChangeText={setMedicamentosinput} multiline/>
+                    <Text style={styles.titlemiddle}>ANAMNESE</Text>
+                    <TextInput style = {styles.input} placeholder="Tipo Sanguíneo" value={tiposanguineo} onChangeText={setTiposanguineo}/>
+                    <TextInput style={[styles.input, styles.textArea]} placeholder="Alergias (separadas por vírgula)" value={alergiasinput} onChangeText={setAlergiasinput} multiline/>
+                    <TextInput style={[styles.input, styles.textArea]} placeholder="Medicamentos (separados por vírgula)" value={medicamentosinput} onChangeText={setMedicamentosinput} multiline/>
 
-            <View style={styles.switchContainer}>
-                <Text style={styles.switchText}>Possui problemas posturais?</Text>
-                <Switch value={probposturais} onValueChange={setProbposturais}/>
-            </View>
-            <View style={styles.switchContainer}>
-                <Text style={styles.switchText}>Possui risco cardíaco?</Text>
-                <Switch value={riscocardiaco} onValueChange={setRiscocardiaco}/>
-            </View>
-            <View style={styles.switchContainer}>
-                <Text style={styles.switchText}>Possui dores frequentes?</Text>
-                <Switch value={doresfrequentes} onValueChange={setDoresfrequentes}/>
-            </View>
+                    <View style={styles.switchContainer}>
+                        <Text style={styles.switchText}>Possui problemas posturais?</Text>
+                        <Switch value={probposturais} onValueChange={setProbposturais}/>
+                    </View>
+                    <View style={styles.switchContainer}>
+                        <Text style={styles.switchText}>Possui risco cardíaco?</Text>
+                        <Switch value={riscocardiaco} onValueChange={setRiscocardiaco}/>
+                    </View>
+                    <View style={styles.switchContainer}>
+                        <Text style={styles.switchText}>Possui dores frequentes?</Text>
+                        <Switch value={doresfrequentes} onValueChange={setDoresfrequentes}/>
+                    </View>
 
-            <TextInput style={styles.input} placeholder="Contato de Emergência" value={contatoemergencia} onChangeText={setContatoemergencia}/>
-            <TextInput style={styles.input} placeholder="Falar com:" value={falarcom} onChangeText={setFalarcom}/>
+                    <TextInput style={styles.input} placeholder="Contato de Emergência" value={contatoemergencia} onChangeText={setContatoemergencia}/>
+                    <TextInput style={styles.input} placeholder="Falar com:" value={falarcom} onChangeText={setFalarcom}/>
 
-            <Text style={styles.titlemiddle}>ATIVIDADE FÍSICA</Text>
-            <View style={styles.switchContainer}>
-                <Text style={styles.switchText}>Pratica atividade física?</Text>
-                <Switch value={praticaativ} onValueChange={setPraticaativ}/>
-            </View>
-            {praticaativ && (
-                <>
-                    <TextInput style={styles.input} placeholder="Tipo de atividade" value={tipoativ} onChangeText={setTipoativ}/>
-                    <TextInput style={styles.input} placeholder="Frequência" value={frequenciaativ} onChangeText={setFrequenciaativ}/>
-                    <TextInput style={styles.input} placeholder="Há quanto tempo?" value={tempo} onChangeText={setTempo}/>
-                </>
-            )}
+                    <Text style={styles.titlemiddle}>ATIVIDADE FÍSICA</Text>
+                    <View style={styles.switchContainer}>
+                        <Text style={styles.switchText}>Pratica atividade física?</Text>
+                        <Switch value={praticaativ} onValueChange={setPraticaativ}/>
+                    </View>
+                    {praticaativ && (
+                        <>
+                            <TextInput style={styles.input} placeholder="Tipo de atividade" value={tipoativ} onChangeText={setTipoativ}/>
+                            <TextInput style={styles.input} placeholder="Frequência" value={frequenciaativ} onChangeText={setFrequenciaativ}/>
+                            <TextInput style={styles.input} placeholder="Há quanto tempo?" value={tempo} onChangeText={setTempo}/>
+                        </>
+                    )}
 
-            <TouchableOpacity style={styles.botao} onPress={Cadastrar}>
-                <Text style={styles.botaoTexto}>Cadastrar</Text>
-            </TouchableOpacity>
+                    <TouchableOpacity style={styles.botao} onPress={Cadastrar}>
+                        <Text style={styles.botaoTexto}>Cadastrar</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
         </View>
     );
-    
-const Wrapper = ({ children }) => {
-  return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: '#FAF1ED',
-        ...(Platform.OS === 'web' ? { height: '100vh', overflow: 'auto' } : {})
-      }}
-    >
-      {children}
-    </View>
-  );
-};
 }
 
 const styles = StyleSheet.create({
@@ -178,15 +173,18 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FAF1ED',
     },
+    scrollContent: {
+        flexGrow: 1,
+    },
     content: {
         alignItems: 'center',
         paddingVertical: 30,
         paddingHorizontal: 20,
         backgroundColor: '#FAF1ED',
-        minHeight: Platform.OS === 'web' ? '100vh' : undefined,
+        minHeight:undefined,
     },
     title: { 
-        fontSize: Platform.OS === 'web' ? 28 : 22,
+        fontSize:22,
         fontWeight: '800', 
         color: '#3d2f49', 
         textAlign: 'center',
@@ -208,6 +206,22 @@ const styles = StyleSheet.create({
         textAlign: 'left', 
         width: '90%',
         maxWidth: 400,
+    },
+    pickerContainer: {
+        width: '90%',
+        maxWidth: 400,
+        height: 45,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 12,
+        overflow: 'hidden',
+        justifyContent: 'center',
+        backgroundColor: '#fff',
+        marginTop: 10
+    },
+    picker: {
+        width: '100%',
+        color: '#616161',
     },
     input: { 
         width: '90%',

@@ -20,7 +20,7 @@ export default function AnamneseProfessor() {
 
   if (!user) {
     return (
-      <View style={[styles.container, styles.centerContent]}>
+      <View style={styles.centerContent}>
         <Text style={styles.erroTexto}>Usuário não logado</Text>
       </View>
     );
@@ -47,14 +47,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FAF1ED',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
+    marginTop: 25,
     backgroundColor: '#FAF1ED',
-    borderBottomWidth: 1,
-    borderBottomColor: '#FAF1ED',
+    justifyContent: "center",
+    alignItems: 'center',
+    width: '100%',
   },
   titulo: {
     fontSize: 21,
@@ -64,14 +65,15 @@ const styles = StyleSheet.create({
   },
   conteudocard: {
     flex: 1,
+    width: '100%',
   },
   conteudocontainer: {
     flexGrow: 1,
     padding: 16,
-    justifyContent: 'center',
     alignItems: 'center',
   },
   centerContent: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },

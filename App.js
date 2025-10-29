@@ -131,9 +131,8 @@ export default function App() {
             backgroundColor: '#FAF1ED',
           },
           headerTitle: '',
-          headerTintColor: '#3d2f49'
-        }}
-      >
+          headerTintColor: '#3d2f49',
+        }}>
         <Stack.Screen 
           options={{headerShown: false}} 
           name='Selection' 
@@ -162,6 +161,14 @@ export default function App() {
           options={{headerShown: false}} 
           name='HomeProfessor' 
           component={DrawerProfessor} 
+        />
+        <Stack.Screen 
+          name='AnamneseProfessor' 
+          component={AnamneseProfessor} 
+        />
+        <Stack.Screen 
+          name='Turmas' 
+          component={Turmas} 
         />
       </Stack.Navigator>
     </NavigationContainer>
