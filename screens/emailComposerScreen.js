@@ -1,96 +1,60 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, TextInput, Button, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, Text, TextInput, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../controller/controller';
+//comentar mais algumas linhas la embaixo
 
 export default function App() {
-  const [isAvailable, setIsAvailable] = useState(false);
-  const [recipients, setRecipients] = useState([]);
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
-  const [email, setEmail] = useState('');
-  const [enviando, setEnviando] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
-  const [totalEmails, setTotalEmails] = useState(0);
 
   useEffect(() => {
-    async function checkAvailability() {
-      const isMailAvailable = true; // Como estamos usando servidor próprio, sempre disponível
-      setIsAvailable(isMailAvailable);
-      BuscarEmailsDoFirebase();
-    }
-
-    checkAvailability();
+    BuscarEmailsDoFirebase(); //vai sempre buscar os emails com a funcao de buscar
   }, []);
 
   const BuscarEmailsDoFirebase = async () => {
     try {
-      const usersRef = collection(db, 'users');
-      const snapshot = await getDocs(usersRef);
-      const emailsList = [];
+      const usersRef = collection(db, 'users'); //pega o banco de dados e os usuarios p buscar as informacoes
+      const snapshot = await getDocs(usersRef); //pega os usuarios
+      const emailsList = []; //cria uma lista com os emails dos usuarios
 
-      snapshot.forEach(doc => {
+      snapshot.forEach(doc => { //faz para cada um
         const userData = doc.data();
-        if (userData.email) {
-          emailsList.push({
+        if (userData.email) { //se existir email com o usuario
+          emailsList.push({ //coloca o nome email e id do usuario na lista dos emails criada
             email: userData.email,
-            name: userData.nome || 'Usuário',
+            name: userData.nome,
             id: doc.id
           });
         }
       });
-      setUsuarios(emailsList);
-      setTotalEmails(emailsList.length);
-      // Preenche automaticamente os recipients com os emails do Firebase
-      setRecipients(emailsList.map(user => user.email));
-    } catch (error) {
-      console.error('Erro ao buscar emails', error);
-      Alert.alert('Não foi possível carregar os emails dos usuários');
+      
+      setUsuarios(emailsList); //usuarios vira a emaillist que contem as informacoes dos usuarios
+      
+    } catch (error) { //mensagem de erro se nao der certo carregar os emails
+      Alert.alert('Erro', 'Não foi possível carregar os emails dos usuários');
     }
   };
 
-  const addRecipient = () => {
-    if (!email || !email.includes('@')) {
-      Alert.alert('Email inválido');
-      return;
+  const emailsTodos = () => {
+    if (usuarios.length === 0) { //destinatario é pra quem voce vai enviar, se nao tiver nenhum destinatario avisa que nenhum foi encontrado
+      return <Text style={styles.noRecipients}>Nenhum destinatário encontrado</Text>;
     }
 
-    let newRecipients = [...recipients];
-    newRecipients.push(email);
-    setRecipients(newRecipients);
-    setEmail('');
-  };
-
-  const removeRecipient = (indexToRemove) => {
-    const newRecipients = recipients.filter((_, index) => index !== indexToRemove);
-    setRecipients(newRecipients);
-  };
-
-  const showRecipients = () => {
-    if (recipients.length === 0) {
-      return <Text style={styles.noRecipients}>Nenhum destinatário adicionado</Text>;
-    }
-
-    return recipients.map((recipient, index) => (
-      <View key={index} style={styles.recipientItem}>
-        <Text style={styles.recipientText}>{recipient}</Text>
-        <TouchableOpacity onPress={() => removeRecipient(index)}>
-          <Ionicons name="close-circle" size={20} color="#dd6b70" />
-        </TouchableOpacity>
+    return usuarios.map((usuario, index) => ( //usa o map pra pegar um por um dos emails e usuarios 
+      <View key={index} style={styles.recipientItem}> {/*coloca dentro da view as informacoes e vai virar um container com todos os usuarios listados */}
+        <Ionicons name="person-circle-outline" size={20} color="#dd6b70" /> 
+        <Text style={styles.recipientText}>{usuario.email}</Text>
       </View>
     ));
   };
 
-  const enviarEmails = async () => {
-    if (!subject.trim() || !body.trim()) {
-      Alert.alert('Preencha o assunto e a mensagem');
-      return;
-    }
-    
-    if (recipients.length === 0) {
-      Alert.alert('Nenhum destinatário selecionado');
+  const enviarEmails = async () => { 
+    if (!subject.trim() || !body.trim()) { //se nao tiver assunto e mensagem
+      Alert.alert('Atenção', 'Preencha o assunto e a mensagem'); //mostra essa mensagem com o alert
       return;
     }
     
@@ -98,65 +62,49 @@ export default function App() {
   };
 
   const executarEnvioDeEmails = async () => {
-    console.log('Iniciando envio de emails...');
-    setEnviando(true);
     
     try {
-      let sucessos = 0;
-      let erros = 0;
+      let sucessos = 0; //contador de sucessos para analisar com o de erros e ver se algum email nao foi enviado
+      let erros = 0; //contador de erros
 
-      for (const recipient of recipients) {
+      for (const usuario of usuarios) { //para cada usuario dos usuarios
         try {
-          const usuario = usuarios.find(user => user.email === recipient) || {
-            email: recipient,
-            name: 'Cliente'
-          };
-          
           const enviadoComSucesso = await enviarEmailIndividual(usuario);
           
           if (enviadoComSucesso) {
-            sucessos++;
-            console.log(`Email enviado para: ${usuario.email}`);
+            sucessos++; //se for enviado conta mais um sucesso
           } else {
-            erros++;
-            console.log(`Falha no envio para: ${usuario.email}`);
+            erros++; //se nao foi enviado conta um erro
           }
           
+          //pausa entre os emails
           await new Promise(resolve => setTimeout(resolve, 500));
           
         } catch (error) {
-          erros++;
-          console.log(`Erro para ${recipient}:`, error.message);
+          erros++; //se pegar um erro adiciona mais um erro no contador
         }
       }
 
-      Alert.alert(
-        'Resultado do Envio', 
-        `Emails enviados com sucesso!\n\nSucessos: ${sucessos}\nErros: ${erros}`,
-        [{ text: 'OK', onPress: limparFormulario }]
+      Alert.alert( //quando enviar aparece o alerta com a mensagem de email enviado
+        'Envio Concluído', 
+        `Emails enviados com sucesso!\n\nEnviados: ${sucessos}\nFalhas: ${erros}`, //aparece o numero de erros e sucessos pra checar se todos foram enviados
       );
 
-    } catch (error) {
-      console.error('Erro geral:', error);
+    } catch (error) { //se tiver um erro na hora de executar os emails aparece o alert
       Alert.alert('Erro', 'Ocorreu um erro durante o envio dos emails');
-    } finally {
-      setEnviando(false);
-    }
   };
 
   const enviarEmailIndividual = async (usuario) => {
     try {
-      console.log(`Enviando para: ${usuario.email}`);
-      
-      const response = await fetch('http://localhost:3001/send-email', {
+      const response = await fetch('http://localhost:3001/send-email', { //meu servidor
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          to: usuario.email,
+          to: usuario.email, 
           subject: subject,
-          text: `Olá ${usuario.name},\n\n${body}`,
+          text: `Olá ${usuario.name},\n\n${body}`, //texto e html bonitinho do email que aparece no gmail
           html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg,rgb(255, 160, 165),rgb(255, 162, 166)); padding: 30px; text-align: center; color: white; border-radius: 10px 10px 0 0;">
@@ -176,35 +124,13 @@ export default function App() {
         `
         })
       });
-  
-      // Verifica se a resposta é JSON
-      const contentType = response.headers.get('content-type');
-      let data;
-      
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        // Se não for JSON, tenta ler como texto para debug
-        const textResponse = await response.text();
-        console.log('Resposta não-JSON do servidor:', textResponse.substring(0, 200));
-        
-        // Considera sucesso se o status for 200-299
-        return response.ok;
-      }
-      
-      console.log('Resposta do servidor:', data);
-      
-      // Adapta para diferentes formatos de resposta
-      return data.success || data.status === 'success' || response.ok;
+
+      const data = await response.json();
+      return data.success || response.ok;
       
     } catch (error) {
-      console.error(`❌ Erro ao enviar para ${usuario.email}:`, error);
       return false;
-    }
-  };
-  const limparFormulario = () => {
-    setSubject('');
-    setBody('');
+    }}
   };
 
   return (
@@ -221,26 +147,8 @@ export default function App() {
         {/* Card de informações */}
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
-            <Ionicons name="mail-outline" size={20} color="#666" />
-            <Text style={styles.infoText}>{recipients.length} destinatários selecionados</Text>
-          </View>
-        </View>
-
-        {/* Adicionar destinatário manualmente */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Adicionar Destinatário</Text>
-          <View style={styles.addRecipientContainer}>
-            <TextInput
-              style={[styles.input, styles.recipientInput]}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="Digite o email..."
-              placeholderTextColor="#999"
-              keyboardType="email-address"
-            />
-            <TouchableOpacity style={styles.addButton} onPress={addRecipient}>
-              <Ionicons name="add-circle" size={24} color="#dd6b70" />
-            </TouchableOpacity>
+            <Ionicons name="people-outline" size={20} color="#666" />
+            <Text style={styles.infoText}>{usuarios.length} destinatários do sistema</Text>
           </View>
         </View>
 
@@ -248,7 +156,7 @@ export default function App() {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Destinatários</Text>
           <View style={styles.recipientsList}>
-            {showRecipients()}
+            {emailsTodos()}
           </View>
         </View>
 
@@ -279,15 +187,22 @@ export default function App() {
         </View>
         
         <View style={styles.botaocontainer}>
-        <View style={styles.botaocontainer}>
           <TouchableOpacity 
-            style={styles.botaoenviar}
+            style={[styles.botaoenviar, enviando && styles.botaoenviardesativado]}
             onPress={enviarEmails}
+            disabled={enviando}
           >
-            <Ionicons name="send-outline" size={20} color="white" />
-            <Text style={styles.botaoenviartexto}>Enviar Emails</Text>
+            {enviando ? (
+              <ActivityIndicator color="white" size="small" />
+            ) : (
+              <>
+                <Ionicons name="send-outline" size={20} color="white" />
+                <Text style={styles.botaoenviartexto}>
+                  Enviar
+                </Text>
+              </>
+            )}
           </TouchableOpacity>
-        </View>
         </View>
 
         <StatusBar style="auto" />
@@ -367,17 +282,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 5,
   },
-  addRecipientContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  recipientInput: {
-    flex: 1,
-    marginRight: 10,
-  },
-  addButton: {
-    padding: 10,
-  },
   recipientsList: {
     backgroundColor: 'white',
     borderRadius: 10,
@@ -388,7 +292,6 @@ const styles = StyleSheet.create({
   },
   recipientItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 8,
     paddingHorizontal: 5,
@@ -398,6 +301,7 @@ const styles = StyleSheet.create({
   recipientText: {
     fontSize: 14,
     color: '#333',
+    marginLeft: 8,
     flex: 1,
   },
   noRecipients: {
