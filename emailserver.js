@@ -1,9 +1,3 @@
-//ver se tem como o botao do enviar ter duas funcoes na hora de enviar,
-// uma pra\ enviar e uma pra salvar no firebase, 
-// ai so faz igual os outros ali em cima nas funcoes 
-// e dps salvva os emails igual os nomes do firebase q ja tao feitos do express
-//from, to, subject, text
-//e depois so joga as informacoes num card dentro do avisos do aluno
 
 const express = require('express'); //importa o express
 const nodemailer = require('nodemailer'); //usei o nodemailer ao inves da google api para evitar os conflitos de chaves 

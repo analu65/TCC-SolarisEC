@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, TextInput, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, serverTimestamp, addDoc } from 'firebase/firestore';
 import { db } from '../controller/controller';
 //comentar mais algumas linhas la embaixo
 
@@ -10,7 +10,6 @@ export default function App() {
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [usuarios, setUsuarios] = useState([]);
-
   useEffect(() => {
     BuscarEmailsDoFirebase(); //vai sempre buscar os emails com a funcao de buscar
   }, []);
@@ -84,15 +83,41 @@ export default function App() {
           erros++; //se pegar um erro adiciona mais um erro no contador
         }
       }
-
+      await SalvarEmailnoFirebase(sucessos, erros);
       Alert.alert( //quando enviar aparece o alerta com a mensagem de email enviado
         'Envio Concluído', 
         `Emails enviados com sucesso!\n\nEnviados: ${sucessos}\nFalhas: ${erros}`, //aparece o numero de erros e sucessos pra checar se todos foram enviados
       );
 
     } catch (error) { //se tiver um erro na hora de executar os emails aparece o alert
-      Alert.alert('Erro', 'Ocorreu um erro durante o envio dos emails');
-  };
+      
+      Alert.alert('Erro durante o envio dos emails');
+  }
+}
+;
+
+const SalvarEmailnoFirebase = async (sucessos, erros) => {
+  const emailRef = collection(db, 'sent_emails');
+
+  if (!subject || !body) {
+    alert('Por favor, preencha todos os campos!');
+    return;
+  } try {
+
+    await addDoc(emailRef, {
+      subject: subject,
+      body: body,
+      sucessos: sucessos,
+      erros: erros,
+      dataEnvio: serverTimestamp(),
+    });
+    console.log('Emails enviados ao Banco.');
+  } catch (error){
+    console.log('Ocorreu um erro ao enviar os emails ao Banco de dados' +error.message);
+  }
+};
+
+
 
   const enviarEmailIndividual = async (usuario) => {
     try {
@@ -123,14 +148,15 @@ export default function App() {
           </div>
         `
         })
-      });
+    });
 
       const data = await response.json();
       return data.success || response.ok;
       
     } catch (error) {
+      console.log('Erro ao enviar emails ao firebase.' + error.message);
       return false;
-    }}
+    }
   };
 
   return (
@@ -188,20 +214,10 @@ export default function App() {
         
         <View style={styles.botaocontainer}>
           <TouchableOpacity 
-            style={[styles.botaoenviar, enviando && styles.botaoenviardesativado]}
-            onPress={enviarEmails}
-            disabled={enviando}
-          >
-            {enviando ? (
-              <ActivityIndicator color="white" size="small" />
-            ) : (
-              <>
-                <Ionicons name="send-outline" size={20} color="white" />
-                <Text style={styles.botaoenviartexto}>
-                  Enviar
-                </Text>
-              </>
-            )}
+            style={styles.botaoenviar}
+            onPress={enviarEmails}>
+          <Ionicons name="send-outline" size={20} color="white" />
+                <Text style={styles.botaoenviartexto}>Enviar</Text>
           </TouchableOpacity>
         </View>
 
