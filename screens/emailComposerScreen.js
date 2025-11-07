@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, TextInput, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, Text, TextInput, View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { collection, getDocs, doc, serverTimestamp, addDoc } from 'firebase/firestore';
@@ -10,6 +10,7 @@ export default function App() {
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [usuarios, setUsuarios] = useState([]);
+  
   useEffect(() => {
     BuscarEmailsDoFirebase(); //vai sempre buscar os emails com a funcao de buscar
   }, []);
@@ -91,37 +92,34 @@ export default function App() {
 
     } catch (error) { //se tiver um erro na hora de executar os emails aparece o alert
       
-      Alert.alert('Erro durante o envio dos emails');
-  }
-}
-;
+      Alert.alert('Erro', 'Erro durante o envio dos emails');
+    }
+  };
 
-const SalvarEmailnoFirebase = async (sucessos, erros) => {
-  const emailRef = collection(db, 'sent_emails');
+  const SalvarEmailnoFirebase = async (sucessos, erros) => {
+    const emailRef = collection(db, 'sent_emails');
 
-  if (!subject || !body) {
-    alert('Por favor, preencha todos os campos!');
-    return;
-  } try {
+    if (!subject || !body) {
+      Alert.alert('Atenção', 'Por favor, preencha todos os campos!');
+      return;
+    } try {
 
-    await addDoc(emailRef, {
-      subject: subject,
-      body: body,
-      sucessos: sucessos,
-      erros: erros,
-      dataEnvio: serverTimestamp(),
-    });
-    console.log('Emails enviados ao Banco.');
-  } catch (error){
-    console.log('Ocorreu um erro ao enviar os emails ao Banco de dados' +error.message);
-  }
-};
-
-
+      await addDoc(emailRef, {
+        subject: subject,
+        body: body,
+        sucessos: sucessos,
+        erros: erros,
+        dataEnvio: serverTimestamp(),
+      });
+      console.log('Emails enviados ao Banco.');
+    } catch (error){
+      console.log('Ocorreu um erro ao enviar os emails ao Banco de dados' + error.message);
+    }
+  };
 
   const enviarEmailIndividual = async (usuario) => {
     try {
-      const response = await fetch('http://localhost:3001/send-email', { //meu servidor
+      const response = await fetch('http://192.168.0.7:3001/send-email', { //meu servidor
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -148,7 +146,7 @@ const SalvarEmailnoFirebase = async (sucessos, erros) => {
           </div>
         `
         })
-    });
+      });
 
       const data = await response.json();
       return data.success || response.ok;
@@ -174,7 +172,7 @@ const SalvarEmailnoFirebase = async (sucessos, erros) => {
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
             <Ionicons name="people-outline" size={20} color="#666" />
-            <Text style={styles.infoText}>{usuarios.length} destinatários do sistema</Text>
+            <Text style={styles.infoText}>{usuarios.length} destinatários</Text>
           </View>
         </View>
 
@@ -216,8 +214,8 @@ const SalvarEmailnoFirebase = async (sucessos, erros) => {
           <TouchableOpacity 
             style={styles.botaoenviar}
             onPress={enviarEmails}>
-          <Ionicons name="send-outline" size={20} color="white" />
-                <Text style={styles.botaoenviartexto}>Enviar</Text>
+            <Ionicons name="send-outline" size={20} color="white" />
+            <Text style={styles.botaoenviartexto}>Enviar</Text>
           </TouchableOpacity>
         </View>
 

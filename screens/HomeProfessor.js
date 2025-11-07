@@ -6,11 +6,7 @@ export default function HomeProfessor({ navigation }) { //um rosa e um branco
     return (
         <View style={styles.container}>
             <Text style={styles.titulo}>Bem-vindo, Professor</Text>
-            
-
             <View style={styles.botoesContainer}>
-                
-
                 <TouchableOpacity
                     style={styles.botaorosa}
                     onPress={() => navigation.navigate('AnamneseProfalunos')}
