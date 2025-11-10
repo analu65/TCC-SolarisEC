@@ -10,6 +10,7 @@ export default function App() {
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [usuarios, setUsuarios] = useState([]);
+  
   useEffect(() => {
     BuscarEmailsDoFirebase(); //vai sempre buscar os emails com a funcao de buscar
   }, []);
@@ -107,22 +108,24 @@ export default function App() {
       return;
     } try {
 
-      await addDoc(emailRef, {
-        subject: subject,
-        body: body,
-        sucessos: sucessos,
-        erros: erros,
-        dataEnvio: serverTimestamp(),
-      });
-      console.log('Emails enviados ao Banco.');
-    } catch (error){
-      console.log('Ocorreu um erro ao enviar os emails ao Banco de dados' +error.message);
-    }
-  };
+    await addDoc(emailRef, {
+      subject: subject,
+      body: body,
+      sucessos: sucessos,
+      erros: erros,
+      dataEnvio: serverTimestamp(),
+    });
+    console.log('Emails enviados ao Banco.');
+  } catch (error){
+    console.log('Ocorreu um erro ao enviar os emails ao Banco de dados' +error.message);
+  }
+};
+
+
 
   const enviarEmailIndividual = async (usuario) => {
     try {
-      const response = await fetch('http://localhost:3001/send-email', { //meu servidor
+      const response = await fetch('http://192.168.0.7:3001/send-email', { //meu servidor
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -175,7 +178,7 @@ export default function App() {
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
             <Ionicons name="people-outline" size={20} color="#666" />
-            <Text style={styles.infoText}>{usuarios.length} destinatários do sistema</Text>
+            <Text style={styles.infoText}>{usuarios.length} destinatários</Text>
           </View>
         </View>
 

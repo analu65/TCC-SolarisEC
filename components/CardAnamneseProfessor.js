@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TextInput, StatusBar } from "react-native";
 import { useState, useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../controller/controller";
@@ -6,6 +6,7 @@ import { db } from "../controller/controller";
 export default function CardProfessorAluno() {
     const [dadosAlunos, setDadosAlunos] = useState([]); //dados dos alunos pra mexer depois
     const [erro, setErro] = useState(null);
+    const [searchWord, setSearchWord] = useState('');
 
     useEffect(() => {
         const loadData = async () => { //carregar os dados
@@ -74,8 +75,21 @@ export default function CardProfessorAluno() {
 
     return (
         <View style={styles.container}>
-            <ScrollView style={styles.scrollContainer}>
-                {dadosAlunos.map((aluno) => ( //mapeia os dados dos alunos do dadosalunos e transforma na funcao aluno que pega o id de cada um pra fazer varios cards diferentes
+            <StatusBar barStyle="light-content"></StatusBar>
+            <View style={styles.inputContainer}>
+            <TextInput style={styles.input}
+            placeholder="Pesquisar..."
+            onChangeText={setSearchWord}></TextInput>
+            </View>
+
+                <ScrollView style={styles.scrollContainer}>
+                {dadosAlunos.filter((aluno) => {
+                    if (searchWord == ''){
+                        return aluno
+                    } else if (aluno.nome.toLowerCase().includes(searchWord.toLowerCase())){
+                        return aluno
+                    }
+                }).map((aluno) => ( //mapeia os dados dos alunos do dadosalunos e transforma na funcao aluno que pega o id de cada um pra fazer varios cards diferentes
                     <View key={aluno.id} style={styles.card}>
                         <View style={styles.header}>
                             <Text style={styles.nome}>{aluno.nome || 'Usuário'}</Text>
@@ -225,5 +239,21 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: 'red',
         textAlign: 'center',
-    }
+    },
+    input: { 
+        width: '90%',
+        maxWidth: 400,
+        height: 45, 
+        borderColor: '#ccc', 
+        borderWidth: 1, 
+        borderRadius: 12, 
+        backgroundColor: '#fff', 
+        paddingHorizontal: 10, 
+        fontSize: 16, 
+        color: '#616161',
+    },
+    inputContainer: {
+        alignItems: 'center', 
+        marginBottom: 15,
+    },
 });

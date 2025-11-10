@@ -8,6 +8,7 @@ export default function Turmas() {
     const [dadosTurmas, setDadosturmas] = useState([]);
     const [erroTurma, setErroturma] = useState('');
     const [professores, setProfessores] = useState({});
+    const [searchWord, setSearchWord] = useState('');
 
     useEffect(() => {
         const LoadData = async () => {
@@ -120,6 +121,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 10,
+        backgroundColor: "#FCF9F7"
     },
     scrollContainer: {
         flex: 1,

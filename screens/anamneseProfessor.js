@@ -37,7 +37,10 @@ export default function AnamneseProfessor() {
         style={styles.conteudocard} 
         contentContainerStyle={styles.conteudocontainer}
       >
-        <CardAnamnese userId={user.uid} />
+        <CardAnamnese 
+          userId={user.uid} 
+          style={styles.cardGrande}
+        />
       </ScrollView>
     </View>
   );
@@ -81,5 +84,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#e74c3c',
     fontSize: 16,
+  },
+  cardGrande: {
+    width: '100%',
+    minHeight: 500,
+    padding: 25,
+    marginBottom: 20,
   },
 });
