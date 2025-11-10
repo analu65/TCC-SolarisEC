@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, TextInput, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, Text, TextInput, View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { collection, getDocs, doc, serverTimestamp, addDoc } from 'firebase/firestore';
@@ -39,12 +39,16 @@ export default function App() {
   };
 
   const emailsTodos = () => {
-    if (usuarios.length === 0) { //destinatario é pra quem voce vai enviar, se nao tiver nenhum destinatario avisa que nenhum foi encontrado
-      return <Text style={styles.noRecipients}>Nenhum destinatário encontrado</Text>;
+    if (usuarios.length === 0) {
+      return (
+        <View style={styles.noRecipientsContainer}>
+          <Text style={styles.noRecipients}>Nenhum destinatário encontrado</Text>
+        </View>
+      );
     }
 
-    return usuarios.map((usuario, index) => ( //usa o map pra pegar um por um dos emails e usuarios 
-      <View key={index} style={styles.recipientItem}> {/*coloca dentro da view as informacoes e vai virar um container com todos os usuarios listados */}
+      return usuarios.map((usuario) => (
+      <View key={usuario.id} style={styles.recipientItem}>
         <Ionicons name="person-circle-outline" size={20} color="#dd6b70" /> 
         <Text style={styles.recipientText}>{usuario.email}</Text>
       </View>
@@ -91,33 +95,30 @@ export default function App() {
 
     } catch (error) { //se tiver um erro na hora de executar os emails aparece o alert
       
-      Alert.alert('Erro durante o envio dos emails');
-  }
-}
-;
+      Alert.alert('Erro', 'Erro durante o envio dos emails');
+    }
+  };
 
-const SalvarEmailnoFirebase = async (sucessos, erros) => {
-  const emailRef = collection(db, 'sent_emails');
+  const SalvarEmailnoFirebase = async (sucessos, erros) => {
+    const emailRef = collection(db, 'sent_emails');
 
-  if (!subject || !body) {
-    alert('Por favor, preencha todos os campos!');
-    return;
-  } try {
+    if (!subject || !body) {
+      Alert.alert('Atenção', 'Por favor, preencha todos os campos!');
+      return;
+    } try {
 
-    await addDoc(emailRef, {
-      subject: subject,
-      body: body,
-      sucessos: sucessos,
-      erros: erros,
-      dataEnvio: serverTimestamp(),
-    });
-    console.log('Emails enviados ao Banco.');
-  } catch (error){
-    console.log('Ocorreu um erro ao enviar os emails ao Banco de dados' +error.message);
-  }
-};
-
-
+      await addDoc(emailRef, {
+        subject: subject,
+        body: body,
+        sucessos: sucessos,
+        erros: erros,
+        dataEnvio: serverTimestamp(),
+      });
+      console.log('Emails enviados ao Banco.');
+    } catch (error){
+      console.log('Ocorreu um erro ao enviar os emails ao Banco de dados' +error.message);
+    }
+  };
 
   const enviarEmailIndividual = async (usuario) => {
     try {
@@ -148,13 +149,13 @@ const SalvarEmailnoFirebase = async (sucessos, erros) => {
           </div>
         `
         })
-    });
+      });
 
       const data = await response.json();
-      return data.success || response.ok;
+      return data.success;
       
     } catch (error) {
-      console.log('Erro ao enviar emails ao firebase.' + error.message);
+      console.log('Erro ao enviar email:' + error.message);
       return false;
     }
   };
@@ -209,15 +210,17 @@ const SalvarEmailnoFirebase = async (sucessos, erros) => {
             numberOfLines={8}
             textAlignVertical="top"
           />
-          <Text style={styles.charcontador}>{body.length}/1000</Text>
+          <View style={styles.charCountContainer}>
+            <Text style={styles.charcontador}>{body.length}/1000</Text>
+          </View>
         </View>
         
         <View style={styles.botaocontainer}>
           <TouchableOpacity 
             style={styles.botaoenviar}
             onPress={enviarEmails}>
-          <Ionicons name="send-outline" size={20} color="white" />
-                <Text style={styles.botaoenviartexto}>Enviar</Text>
+            <Ionicons name="send-outline" size={20} color="white" />
+            <Text style={styles.botaoenviartexto}>Enviar</Text>
           </TouchableOpacity>
         </View>
 
@@ -292,11 +295,13 @@ const styles = StyleSheet.create({
     height: 120,
     textAlignVertical: 'top',
   },
+  charCountContainer: {
+    alignItems: 'flex-end',
+    marginTop: 5,
+  },
   charcontador: {
-    textAlign: 'right',
     color: '#999',
     fontSize: 12,
-    marginTop: 5,
   },
   recipientsList: {
     backgroundColor: 'white',
@@ -320,11 +325,14 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     flex: 1,
   },
+  noRecipientsContainer: {
+    padding: 15,
+    alignItems: 'center',
+  },
   noRecipients: {
     textAlign: 'center',
     color: '#999',
     fontStyle: 'italic',
-    padding: 10,
   },
   botaocontainer: {
     flexDirection: 'row',
@@ -340,9 +348,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: 200,
-  },
-  botaoenviardesativado: {
-    backgroundColor: '#999',
   },
   botaoenviartexto: {
     color: 'white',
