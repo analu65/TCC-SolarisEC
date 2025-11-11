@@ -109,7 +109,7 @@ export default function Avisos() {
                     </View>
                         
                     <TouchableOpacity style={styles.icone} onPress={() => deletarAviso(aviso.id, aviso.subject)} activeOpacity={0.7}>
-                      <MaterialCommunityIcons name="delete-outline" size={24} color="#535353" />
+                      <MaterialCommunityIcons name="minus-circle-outline" size={24} color="#535353" />
                     </TouchableOpacity> 
           </View>
           ))}

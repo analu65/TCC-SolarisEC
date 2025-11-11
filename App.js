@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Button, TouchableOpacity} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerItemList } from '@react-navigation/drawer';
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -88,35 +88,69 @@ function BottomTabAluno() {
 function DrawerProfessor() {
   const Drawer = createDrawerNavigator();
   return (
-    <Drawer.Navigator>
+    <Drawer.Navigator
+      drawerContent={(props) => (
+        <View style={{ flex: 1, paddingTop: 50 }}>
+          <DrawerItemList {...props} />
+          <TouchableOpacity
+            style={{
+              padding: 15,
+              backgroundColor: '#ff4444',
+              margin: 10,
+              borderRadius: 5,
+              marginBottom: 20
+            }}
+            onPress={() => props.navigation.navigate('Login')}>
+            <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Sair</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    >
       <Drawer.Screen 
         name='HomeProfessorDrawer' 
         component={BottomTabProfessor} 
         options={{ title: 'Início' }}
       />
-      <Drawer.Screen name='Turmas' component={Turmas} />
-      <Drawer.Screen name='Cadastro de Turmas' component={cadastroTurmas} />
-      <Drawer.Screen name='Anamnese Professor' component={AnamneseProfessor}/>
-      <Drawer.Screen name='Ficha Anamnese Alunos' component={AnamneseProfalunos}/>
     </Drawer.Navigator>
   );
 }
 
+
 function DrawerAluno() {
   const Drawer = createDrawerNavigator();
   return (
-    <Drawer.Navigator>
+    <Drawer.Navigator
+      drawerContent={(props) => (
+        <View style={{ flex: 1, paddingTop: 50 }}>
+          <DrawerItemList {...props} />
+          
+          <TouchableOpacity
+            style={{
+              padding: 15,
+              backgroundColor: '#ff4444',
+              margin: 10,
+              borderRadius: 5,
+              marginBottom: 20
+            }}
+            onPress={() => props.navigation.navigate('Login')}
+          >
+            <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
+              Sair
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    >
       <Drawer.Screen 
         name='HomeAlunoDrawer' 
         component={BottomTabAluno} 
         options={{ title: 'Início' }}
       />
-      <Drawer.Screen name='Anamnese' component={AnamneseProfessor}/>
-      <Drawer.Screen name='Turmas' component={Turmas} />
-
     </Drawer.Navigator>
   );
 }
+
+
 
 export default function App() {
   const Stack = createStackNavigator();

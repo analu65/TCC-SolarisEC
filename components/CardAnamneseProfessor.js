@@ -1,7 +1,9 @@
-import { View, Text, ScrollView, StyleSheet, TextInput, StatusBar } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TextInput, StatusBar, TouchableOpacity, Alert } from "react-native";
 import { useState, useEffect } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { db } from "../controller/controller";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+
 
 export default function CardProfessorAluno() {
     const [dadosAlunos, setDadosAlunos] = useState([]); //dados dos alunos pra mexer depois
@@ -73,27 +75,80 @@ export default function CardProfessorAluno() {
         );
     }
 
-    return (
+    const deletarAluno = async (alunoId, alunoNome) => {
+        Alert.alert(
+            "Confirmar exclusão",
+            `Tem certeza que deseja excluir o aluno "${alunoNome}"?`,
+            [
+                {
+                    text: "Cancelar",
+                    style: "cancel"
+                },
+                {
+                    text: "Excluir",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await deleteDoc(doc(db, "users", alunoId));
+                            setDadosAlunos(dadosAlunos.filter(aluno => aluno.id !== alunoId));
+                            Alert.alert("Sucesso", "Aluno excluído com sucesso!");
+                        } catch (error) {
+                            console.error("Erro ao deletar aluno:", error);
+                            Alert.alert("Erro", "Não foi possível excluir o aluno.");
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
+    if (erro) {
+        return (
+            <Text style={styles.erroTexto}>{erro}</Text>
+        );
+    }
+
+    if (dadosAlunos.length === 0) {
+        return (
+            <View style={[styles.card, styles.conteudomeio]}>
+                <Text style={styles.erroTexto}>Nenhum aluno encontrado</Text>
+            </View>
+        );
+    }
+
+
+return (
         <View style={styles.container}>
             <StatusBar barStyle="light-content"></StatusBar>
             <View style={styles.inputContainer}>
-            <TextInput style={styles.input}
-            placeholder="Pesquisar..."
-            onChangeText={setSearchWord}></TextInput>
+                <TextInput 
+                    style={styles.input}
+                    placeholder="Pesquisar..."
+                    onChangeText={setSearchWord}
+                />
             </View>
 
-                <ScrollView style={styles.scrollContainer}>
+            <ScrollView style={styles.scrollContainer}>
                 {dadosAlunos.filter((aluno) => {
                     if (searchWord == ''){
                         return aluno
                     } else if (aluno.nome.toLowerCase().includes(searchWord.toLowerCase())){
                         return aluno
                     }
-                }).map((aluno) => ( //mapeia os dados dos alunos do dadosalunos e transforma na funcao aluno que pega o id de cada um pra fazer varios cards diferentes
+                }).map((aluno) => (
                     <View key={aluno.id} style={styles.card}>
                         <View style={styles.header}>
-                            <Text style={styles.nome}>{aluno.nome || 'Usuário'}</Text>
-                            <Text style={styles.tipoSanguineo}>{aluno.tiposanguineo || ''}</Text>
+                            <View style={styles.headerInfo}>
+                                <Text style={styles.nome}>{aluno.nome || 'Usuário'}</Text>
+                                <Text style={styles.tipoSanguineo}>{aluno.tiposanguineo || ''}</Text>
+                            </View>
+                            <TouchableOpacity
+                                style={styles.iconeDeletar}
+                                onPress={() => deletarAluno(aluno.id, aluno.nome || 'Usuário')}
+                                activeOpacity={0.7}
+                            >
+                                <MaterialCommunityIcons name="minus-circle-outline" size={24} color="#535353" />
+                            </TouchableOpacity>
                         </View>
                         
                         <View style={styles.conteudo}>
@@ -193,8 +248,11 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         marginBottom: 10,
+    },
+    headerInfo: {
+        flex: 1,
     },
     nome: {
         fontSize: 18,
@@ -204,6 +262,11 @@ const styles = StyleSheet.create({
     tipoSanguineo: {
         fontSize: 16,
         color: '#666',
+        marginTop: 2,
+    },
+    iconeDeletar: {
+        marginLeft: 10,
+        padding: 5,
     },
     conteudo: {
         marginTop: 5,
