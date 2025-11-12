@@ -55,8 +55,9 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     marginTop: 25,
+    marginLeft: 60,
     backgroundColor: '#FAF1ED',
-    justifyContent: "center",
+    justifyContent: 'flex-start',
     alignItems: 'center',
     width: '100%',
   },

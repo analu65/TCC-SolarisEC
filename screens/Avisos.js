@@ -13,7 +13,6 @@ export default function Avisos() {
             try {
                 setErroAviso(null);
                 
-                // Busca todos os avisos ordenados por data (mais recentes primeiro)
                 const avisosQuery = query(collection(db, 'sent_emails'), orderBy('dataEnvio', 'desc'));
                 const avisosSnapshot = await getDocs(avisosQuery);
                 
@@ -93,6 +92,10 @@ export default function Avisos() {
 
     return(
         <View style={styles.container}>
+        <View style={styles.headertitulo}>
+        <MaterialCommunityIcons name="bell" size={20} color="#3d2f49" />
+        <Text style={styles.titulo}>Avisos</Text>
+        </View>
           <ScrollView style={styles.scrollContainer}>
             {dadosAvisos.map((aviso) => (
               <View key={aviso.id} style={styles.card}>
@@ -140,8 +143,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 3,
-        borderLeftWidth: 4,
-        borderLeftColor: '#dd6b70',
+        borderWidth: 1,
+        borderColor: '#dd6a71'
     },
     informacoes: {
         flex: 1,
@@ -163,7 +166,6 @@ const styles = StyleSheet.create({
     data: {
         fontSize: 12,
         color: '#666',
-        fontStyle: 'italic',
     },
     destinatario: {
         fontSize: 14,
@@ -171,7 +173,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     mensagemContainer: {
-        backgroundColor: '#f8f9fa',
+        backgroundColor: '#fff',
         padding: 12,
         borderRadius: 8,
         marginBottom: 12,
@@ -198,5 +200,18 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#e74c3c',
         textAlign: 'center',
-    }
+    },
+    headertitulo: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginTop: 25,
+    marginLeft: 18,
+    marginBottom: 10
+  },
+    titulo: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginLeft: 12,
+    color: '#3d2f49',
+  },
 });

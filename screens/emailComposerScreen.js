@@ -39,23 +39,6 @@ export default function App() {
     }
   };
 
-  const emailsTodos = () => {
-    if (usuarios.length === 0) {
-      return (
-        <View style={styles.noRecipientsContainer}>
-          <Text style={styles.noRecipients}>Nenhum destinatário encontrado</Text>
-        </View>
-      );
-    }
-
-      return usuarios.map((usuario) => (
-      <View key={usuario.id} style={styles.recipientItem}>
-        <Ionicons name="person-circle-outline" size={20} color="#dd6b70" /> 
-        <Text style={styles.recipientText}>{usuario.email}</Text>
-      </View>
-    ));
-  };
-
   const enviarEmails = async () => { 
     if (!subject.trim() || !body.trim()) { //se nao tiver assunto e mensagem
       Alert.alert('Atenção', 'Preencha o assunto e a mensagem'); //mostra essa mensagem com o alert
@@ -125,7 +108,7 @@ export default function App() {
 
   const enviarEmailIndividual = async (usuario) => {
     try {
-      const response = await fetch('http://192.168.0.7:3001/send-email', { //meu servidor
+      const response = await fetch('http://192.168.0.11:3001/send-email', { //meu servidor
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -170,25 +153,10 @@ export default function App() {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         
         <View style={styles.header}>
-          <Ionicons name="mail-outline" size={24} color="#dd6b70" />
+          <Ionicons name="mail-outline" size={24} color="#3d2f49" />
           <Text style={styles.tituloemail}>Enviar Email</Text>
         </View>
 
-        {/* Card de informações */}
-        <View style={styles.infoCard}>
-          <View style={styles.infoRow}>
-            <Ionicons name="people-outline" size={20} color="#666" />
-            <Text style={styles.infoText}>{usuarios.length} destinatários</Text>
-          </View>
-        </View>
-
-        {/* Lista de destinatários */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Destinatários</Text>
-          <View style={styles.recipientsList}>
-            {emailsTodos()}
-          </View>
-        </View>
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Assunto</Text>
@@ -222,7 +190,6 @@ export default function App() {
           <TouchableOpacity 
             style={styles.botaoenviar}
             onPress={enviarEmails}>
-            <Ionicons name="send-outline" size={20} color="white" />
             <Text style={styles.botaoenviartexto}>Enviar</Text>
           </TouchableOpacity>
         </View>
@@ -247,38 +214,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     paddingBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    marginTop: 12
   },
   tituloemail: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: '600',
     marginLeft: 10,
-    color: '#333',
-  },
-  infoCard: {
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  infoText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: '#666',
+    color: '#3d2f49',
   },
   inputContainer: {
     marginBottom: 20,
+    marginTop: 13
   },
   label: {
     fontSize: 16,

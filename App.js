@@ -95,12 +95,12 @@ function DrawerProfessor() {
           <TouchableOpacity
             style={{
               padding: 15,
-              backgroundColor: '#ff4444',
+              backgroundColor: '#3d2f49',
               margin: 10,
               borderRadius: 5,
               marginBottom: 20
             }}
-            onPress={() => props.navigation.navigate('Login')}>
+            onPress={() => props.navigation.navigate('Selection')}>
             <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Sair</Text>
           </TouchableOpacity>
         </View>
@@ -127,7 +127,7 @@ function DrawerAluno() {
           <TouchableOpacity
             style={{
               padding: 15,
-              backgroundColor: '#ff4444',
+              backgroundColor: '#3d2f49',
               margin: 10,
               borderRadius: 5,
               marginBottom: 20

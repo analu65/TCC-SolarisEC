@@ -164,8 +164,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20, 
-    borderBottomWidth: 2, 
-    borderBottomColor: '#e0e0e0',
     paddingBottom: 15, 
     width: '100%', 
   },
@@ -189,8 +187,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 15, 
     borderRadius: 8,
-    borderLeftWidth: 5, 
-    borderLeftColor: '#dd6b70',
     width: '100%', 
   },
   sectionTitle: {

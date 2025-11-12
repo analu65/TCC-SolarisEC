@@ -51,7 +51,7 @@ export default function CadastroTurmas({ navigation }) { //todos os itens para o
                 return [...prev, alunoId]; //coloca ele na lista
             }
         });
-    };
+    };  
 
     const cadastrar = async () => { //funcao de cadastrar e se nao tiver esses ele nao deixa cadastrar 
         if (!nome || !professor || !dias || !finishTime || !startTime) {
@@ -123,7 +123,7 @@ export default function CadastroTurmas({ navigation }) { //todos os itens para o
                 >
                 <Picker.Item label="Selecione um professor" value="" />
                 {professoresList.map(prof => (
-                    <Picker.Item key={prof.id} label={prof.nome} value={prof.nome} />
+                    <Picker.Item key={prof.id} label={prof.nome} value={prof.id} />
                 ))}
                 </Picker>
 
@@ -143,7 +143,7 @@ export default function CadastroTurmas({ navigation }) { //todos os itens para o
                         <Text style={styles.timeLabel}>Horário Início: </Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="08:00"
+                            placeholder="Ex: 08:00"
                             value={startTime}
                             onChangeText={setStartTime}
                         />
@@ -153,7 +153,7 @@ export default function CadastroTurmas({ navigation }) { //todos os itens para o
                         <Text style={styles.timeLabel}>Horário Fim:</Text>
                         <TextInput 
                             style={styles.input} 
-                            placeholder="10:00" //placeholder coloca exemplo de hora
+                            placeholder="Ex: 10:00" //placeholder coloca exemplo de hora
                             value={finishTime} 
                             onChangeText={setFinishTime}
                         />
@@ -162,7 +162,7 @@ export default function CadastroTurmas({ navigation }) { //todos os itens para o
 
                 <Text style={styles.sectionTitle}>Alunos</Text>
                 
-                <Text style={styles.label}>Selecionar alunos existentes:</Text>
+                <Text style={styles.label}>Selecionar alunos:</Text>
                 
                 <ScrollView style={styles.alunosContainer}>
                     {alunos.map(aluno => ( //cria o scrollview e dentro coloca os alunos
@@ -218,14 +218,13 @@ const styles = StyleSheet.create({
         paddingVertical: 30,
         paddingHorizontal: 20,
         backgroundColor: '#FCF9F7',
-        minHeight: Platform.OS === 'web' ? '100vh' : undefined,
     },
     titulo: { 
         fontSize: 22,
         fontWeight: '700', 
         color: '#3d2f49', 
         textAlign: 'center',
-        marginBottom: 10 
+        marginBottom: 10,
     },
     subtitulo: { 
         fontSize: 12, 
