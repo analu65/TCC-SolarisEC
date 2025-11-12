@@ -132,7 +132,7 @@ function DrawerAluno() {
               borderRadius: 5,
               marginBottom: 20
             }}
-            onPress={() => props.navigation.navigate('Login')}
+            onPress={() => props.navigation.navigate('Selection')}
           >
             <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
               Sair

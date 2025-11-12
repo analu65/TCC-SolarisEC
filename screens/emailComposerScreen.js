@@ -108,7 +108,7 @@ export default function App() {
 
   const enviarEmailIndividual = async (usuario) => {
     try {
-      const response = await fetch('http://192.168.0.11:3001/send-email', { //meu servidor
+      const response = await fetch('http://10.93.0.71:3001/send-email', { //meu servidor
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
